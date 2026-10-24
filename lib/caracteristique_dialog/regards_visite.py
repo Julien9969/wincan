@@ -44,26 +44,31 @@ def _items(parent: WindowSpecification, control_type: str):
 
 def _panes(parent: WindowSpecification):
     LOGGER.debug("Searching Regards tab for named panes")
-    panes = {
-        "arrive": parent.child_window(
-            title="Noeud d'arrivée",
-            control_type="Pane",
-        ),
-        "depart": parent.child_window(
-            title="Noeud de départ",
-            control_type="Pane",
-        ),
-        "ecoulement": parent.child_window(
-            title="Sens de l'écoulement",
-            control_type="Pane",
-        ),
-        "inspection": parent.child_window(
-            title="Sens de l'inspection",
-            control_type="Pane",
-        ),
+    panes = parent.descendants(control_type="Pane")
+    LOGGER.debug("Found %d Regards pane(s)", len(panes))
+
+    named_panes = {}
+    expected_titles = {
+        "arrive": "Noeud d'arrivée",
+        "depart": "Noeud de départ",
+        "ecoulement": "Sens de l'écoulement",
+        "inspection": "Sens de l'inspection",
     }
-    LOGGER.debug("Regards panes mapped: %s", ", ".join(panes))
-    return panes
+    for pane in panes:
+        title = pane.window_text()
+        LOGGER.debug("Regards pane found: %r", title)
+        for name, expected_title in expected_titles.items():
+            if title == expected_title:
+                named_panes[name] = pane
+
+    missing = set(expected_titles) - set(named_panes)
+    if missing:
+        LOGGER.error("Missing Regards pane(s): %s", ", ".join(sorted(missing)))
+        raise RuntimeError(
+            "Could not find Regards pane(s): " + ", ".join(sorted(missing))
+        )
+    LOGGER.debug("Regards panes mapped: %s", ", ".join(named_panes))
+    return named_panes
 
 
 def _get_section(pane: WindowSpecification, name: str) -> WindowSpecification:
