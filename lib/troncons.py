@@ -46,16 +46,6 @@ def click_troncon(window: WindowSpecification, troncons: List[WindowSpecificatio
         "TreeItem",
     )
 
-    # item = window.child_window(title=troncon.window_text(), control_type="TreeItem")
-
-    try:
-        troncon.wait("ready", timeout=10)
-    except PyWinAutoTimeoutError:
-        LOGGER.exception(
-            "Target troncon was not ready. Dumping the UI control tree for inspection."
-        )
-        window.print_control_identifiers()
-        raise
 
     LOGGER.info("Selecting troncon item %r", troncon.window_text())
     try:
