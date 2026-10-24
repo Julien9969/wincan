@@ -142,7 +142,7 @@ def fill_first_troncon(path: Path) -> None:
     click_modification_parametres(main_window)
 
     dialog = app.window(title_re=DIALOG_TITLE_RE)
-    dialog.wait("visible", timeout=10)
+    # dialog.wait("visible", timeout=10)
     _fill_regards(dialog, blocks["#B01"])
     _fill_collecteur(dialog, blocks["#B01"], blocks["#B02"], blocks["#B03"])
     LOGGER.info("First Tronçon filled; dialog left open for review.")
