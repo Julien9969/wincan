@@ -6,8 +6,6 @@ from pywinauto import Application, WindowSpecification
 from pywinauto.timings import TimeoutError as PyWinAutoTimeoutError
 from pywinauto.timings import Timings
 
-from lib.troncons import click_button
-
 TRONÇON_TEXT_PREFIX = "Tronçon n° "
 LOGGER = logging.getLogger(__name__)
 
