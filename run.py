@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     troncons = get_list_troncons(window)
 
-    for index, troncon in enumerate(troncons):
+    for index in range(1, len(troncons)):
         select_troncon(window, troncons, index)
         LOGGER.debug("Selected troncon: %r", troncons[index])
 
