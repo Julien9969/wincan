@@ -1,6 +1,7 @@
 """Control mapping for the "Regards de visite & fiches simplifiées" tab."""
 
 import logging
+import re
 from dataclasses import dataclass
 
 from pywinauto import WindowSpecification
@@ -49,16 +50,16 @@ def _panes(parent: WindowSpecification):
 
     named_panes = {}
     expected_titles = {
-        "arrive": "Noeud d'arrivée",
-        "depart": "Noeud de départ",
-        "ecoulement": "Sens de l'écoulement",
-        "inspection": "Sens de l'inspection",
+        "arrive": r"Noeud d'arrivée",
+        "depart": r"Noeud de départ",
+        "ecoulement": r"Sens de l'écoulement",
+        "inspection": r"Sens de l'inspection",
     }
     for pane in panes:
         title = pane.window_text()
         LOGGER.debug("Regards pane found: %r", title)
-        for name, expected_title in expected_titles.items():
-            if title == expected_title:
+        for name, pattern in expected_titles.items():
+            if re.search(pattern, title, re.IGNORECASE):
                 named_panes[name] = pane
 
     missing = set(expected_titles) - set(named_panes)
