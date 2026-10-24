@@ -19,9 +19,9 @@ class NodeControls:
     combos: tuple[WindowSpecification, ...]
     n_maison: WindowSpecification
     profondeur_ouvrage: WindowSpecification
-    item3: WindowSpecification
+    dim_regard: WindowSpecification
     profondeur_radier: WindowSpecification
-    heuteur_total: WindowSpecification
+    hauteur_total: WindowSpecification
 
 
 @dataclass(frozen=True)
@@ -123,9 +123,9 @@ def _get_node(node: WindowSpecification) -> NodeControls:
         combos=combos,
         n_maison=edits[0],
         profondeur_ouvrage=edits[2],
-        item3=combo_edits[0],
+        dim_regard=combo_edits[0],
         profondeur_radier=edits[4],
-        heuteur_total=edits[5],
+        hauteur_total=edits[5],
     )
 
 

@@ -1,12 +1,14 @@
 
 import logging
 
+from lib.buttons import click_modification_parametres
 from lib.caracteristique_dialog.caracteristique_collecteur import (
     get_identification_controls,
 )
-from lib.caracteristique_dialog.open_caracteristique import open_regards_tab
+from lib.caracteristique_dialog.open_caracteristique import click_ok, open_regards_tab
 from lib.caracteristique_dialog.regards_visite import get_arrive, get_depart, get_sens_ecoulement
 from lib.connect import connect_to_canalyse, get_caracteristique_window, get_main_window
+from lib.troncons import get_list_troncons, select_troncon
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -21,36 +23,41 @@ if __name__ == "__main__":
 
     LOGGER.debug("Main window: %r", window)
 
-    # troncons = get_list_troncons(window)
-    # select_troncon(window, troncons, 10)
-    # LOGGER.debug("Selected troncon: %r", troncons[10])
+    troncons = get_list_troncons(window)
 
-    # click_modification_parametres(window)
-    # list_child_windows(window)
-    carac = get_caracteristique_window(window)
-    carac.set_focus()
-    regards = open_regards_tab(carac)
+    for index, troncon in enumerate(troncons):
+        select_troncon(window, troncons, index)
+        LOGGER.debug("Selected troncon: %r", troncons[index])
 
-    depart = get_depart(regards)
-    depart.n_maison.set_edit_text("1")
-    depart.profondeur_ouvrage.set_edit_text("2")
-    depart.item3.set_edit_text("888")
-    depart.profondeur_radier.set_edit_text("4") 
-    depart.heuteur_total.set_edit_text("5")
+        click_modification_parametres(window)
+        carac = get_caracteristique_window(window)
+        
+        identification = get_identification_controls(carac)
+        identification.operator_name.set_edit_text("Kais Mougeot")
+        # list_child_windows(window)
+        # carac.set_focus()
+        regards = open_regards_tab(carac)
+
+        depart = get_depart(regards)
+        # depart.n_maison.set_edit_text("1")
+        depart.dim_regard.set_edit_text("400")
+        depart.profondeur_ouvrage.set_edit_text("12.2")
+        depart.profondeur_radier.set_edit_text("24") 
+        depart.hauteur_total.set_edit_text("90")
 
 
-    arrive = get_arrive(regards)
-    arrive.n_maison.set_edit_text("1")
-    arrive.profondeur_ouvrage.set_edit_text("2")
-    arrive.item3.set_edit_text("888")
-    arrive.profondeur_radier.set_edit_text("4")
-    arrive.heuteur_total.set_edit_text("5")
+        arrive = get_arrive(regards)
+        # arrive.n_maison.set_edit_text("1")
+        arrive.profondeur_ouvrage.set_edit_text("34.5")
+        arrive.dim_regard.set_edit_text("300")
+        arrive.profondeur_radier.set_edit_text("34")
+        arrive.hauteur_total.set_edit_text("50")
 
-    sens_ecoulement = get_sens_ecoulement(regards)
-    sens_ecoulement.pane.click_input()
+        sens_ecoulement = get_sens_ecoulement(regards)
+        sens_ecoulement.pane.click_input()
+
+        click_ok(carac)
 
     # identification = get_identification_controls(carac)
 
     # identification.operator_name.set_edit_text("Test Operator")
-    
-    carac.print_control_identifiers()

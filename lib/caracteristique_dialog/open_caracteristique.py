@@ -1,5 +1,6 @@
 import logging
 
+from lib.buttons import click_button
 from pywinauto import WindowSpecification
 
 
@@ -43,4 +44,11 @@ def open_regards_tab(dialog: WindowSpecification):
         raise RuntimeError("Cannot select the Regards tab")
     LOGGER.info("Regards tab is open")
     return dialog
+
+
+def click_ok(dialog: WindowSpecification) -> None:
+    """Validate the characteristics dialog with its OK button."""
+    LOGGER.info("Clicking OK on the characteristics dialog")
+    click_button(dialog, "OK")
+    LOGGER.info("Characteristics dialog validated")
     
