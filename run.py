@@ -32,19 +32,19 @@ if __name__ == "__main__":
     regards = open_regards_tab(carac)
 
     depart = get_depart(regards)
-    depart.item1.set_edit_text("1")
-    depart.item2.set_edit_text("2")
+    depart.n_maison.set_edit_text("1")
+    depart.profondeur_ouvrage.set_edit_text("2")
     depart.item3.set_edit_text("3")
-    depart.item4.set_edit_text("4") 
-    depart.item5.set_edit_text("5")
+    depart.profondeur_radier.set_edit_text("4") 
+    depart.heuteur_total.set_edit_text("5")
 
 
     arrive = get_arrive(regards)
-    arrive.item1.set_edit_text("1")
-    arrive.item2.set_edit_text("2")
+    arrive.n_maison.set_edit_text("1")
+    arrive.profondeur_ouvrage.set_edit_text("2")
     arrive.item3.set_edit_text("3")
-    arrive.item4.set_edit_text("4")
-    arrive.item5.set_edit_text("5")
+    arrive.profondeur_radier.set_edit_text("4")
+    arrive.heuteur_total.set_edit_text("5")
 
     sens_ecoulement = get_sens_ecoulement(regards)
     sens_ecoulement.pane.click_input()

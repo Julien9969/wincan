@@ -16,11 +16,11 @@ class NodeControls:
     name: WindowSpecification
     edits: tuple[WindowSpecification, ...]
     combos: tuple[WindowSpecification, ...]
-    item1: WindowSpecification
-    item2: WindowSpecification
+    n_maison: WindowSpecification
+    profondeur_ouvrage: WindowSpecification
     item3: WindowSpecification
-    item4: WindowSpecification
-    item5: WindowSpecification
+    profondeur_radier: WindowSpecification
+    heuteur_total: WindowSpecification
 
 
 @dataclass(frozen=True)
@@ -91,6 +91,16 @@ def _get_node(node: WindowSpecification) -> NodeControls:
             len(combos),
         )
         raise RuntimeError("Node pane does not expose the expected controls")
+    combo_edits = tuple(combos[0].descendants(control_type="Edit"))
+    LOGGER.debug(
+        "First node combo box contains %d Edit control(s)",
+        len(combo_edits),
+    )
+    if not combo_edits:
+        LOGGER.error("First node combo box does not contain an Edit control")
+        raise RuntimeError(
+            "First node combo box does not expose its embedded Edit control"
+        )
     LOGGER.debug(
         "Node controls mapped: %d edit control(s), %d combo box(es)",
         len(edits),
@@ -101,11 +111,11 @@ def _get_node(node: WindowSpecification) -> NodeControls:
         name=edits[1],
         edits=edits,
         combos=combos,
-        item1=edits[0],
-        item2=edits[2],
-        item3=edits[3],
-        item4=edits[4],
-        item5=edits[5],
+        n_maison=edits[0],
+        profondeur_ouvrage=edits[2],
+        item3=combo_edits[0],
+        profondeur_radier=edits[4],
+        heuteur_total=edits[5],
     )
 
 
