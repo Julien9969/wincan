@@ -1,10 +1,8 @@
 import logging
 from typing import List
 
-import pywinauto
-from pywinauto import Application, WindowSpecification
+from pywinauto import WindowSpecification
 from pywinauto.timings import TimeoutError as PyWinAutoTimeoutError
-from pywinauto.timings import Timings
 
 TRONÇON_TEXT_PREFIX = "Tronçon n° "
 LOGGER = logging.getLogger(__name__)
@@ -48,10 +46,10 @@ def click_troncon(window: WindowSpecification, troncons: List[WindowSpecificatio
         "TreeItem",
     )
 
-    item = window.child_window(title=troncon.window_text(), control_type="TreeItem")
+    # item = window.child_window(title=troncon.window_text(), control_type="TreeItem")
 
     try:
-        item.wait("ready", timeout=10)
+        troncon.wait("ready", timeout=10)
     except PyWinAutoTimeoutError:
         LOGGER.exception(
             "Target troncon was not ready. Dumping the UI control tree for inspection."
@@ -59,8 +57,11 @@ def click_troncon(window: WindowSpecification, troncons: List[WindowSpecificatio
         window.print_control_identifiers()
         raise
 
-    LOGGER.info("Invoking troncon %r", item.window_text())
-    item.invoke()
-    LOGGER.info("Troncon invoked successfully")
-
+    LOGGER.info("Selecting troncon item %r", troncon.window_text())
+    try:
+        troncon.select()
+    except (AttributeError, NotImplementedError):
+        LOGGER.debug("TreeItem selection is unavailable; using click_input().")
+        troncon.click_input()
+    LOGGER.info("Troncon selected successfully")
 
