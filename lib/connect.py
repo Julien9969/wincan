@@ -6,7 +6,7 @@ from pywinauto.timings import Timings
 
 APP_PATH = r"C:\Program Files (x86)\Canalyse 2\Canalyse2.exe"
 MAIN_WINDOW_NAME = r".*Canalyse.*"
-CARACTERISTIQUE_WINDOW_NAME = r".*Caractéristiques.*"
+CARACTERISTIQUE_WINDOW_NAME = r".*Caractéristiques du tronçon.*"
 LOGGER = logging.getLogger(__name__)
 
 
