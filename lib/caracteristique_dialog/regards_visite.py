@@ -8,6 +8,7 @@ from pywinauto import WindowSpecification
 
 
 LOGGER = logging.getLogger(__name__)
+_PANE_CACHE: dict[int, dict[str, WindowSpecification]] = {}
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,12 @@ def _items(parent: WindowSpecification, control_type: str):
 
 
 def _panes(parent: WindowSpecification):
+    cache_key = id(parent)
+    cached = _PANE_CACHE.get(cache_key)
+    if cached is not None:
+        LOGGER.debug("Using cached Regards pane mapping")
+        return cached
+
     LOGGER.debug("Searching Regards tab for named panes")
     panes = parent.descendants(control_type="Pane")
     LOGGER.debug("Found %d Regards pane(s)", len(panes))
@@ -69,6 +76,7 @@ def _panes(parent: WindowSpecification):
             "Could not find Regards pane(s): " + ", ".join(sorted(missing))
         )
     LOGGER.debug("Regards panes mapped: %s", ", ".join(named_panes))
+    _PANE_CACHE[cache_key] = named_panes
     return named_panes
 
 
@@ -91,7 +99,9 @@ def _get_node(node: WindowSpecification) -> NodeControls:
             len(combos),
         )
         raise RuntimeError("Node pane does not expose the expected controls")
-    combo_edits = tuple(combos[0].descendants(control_type="Edit"))
+    combo_edits = tuple(combos[0].children(control_type="Edit"))
+    if not combo_edits:
+        combo_edits = tuple(combos[0].descendants(control_type="Edit"))
     LOGGER.debug(
         "First node combo box contains %d Edit control(s)",
         len(combo_edits),

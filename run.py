@@ -34,7 +34,7 @@ if __name__ == "__main__":
     depart = get_depart(regards)
     depart.n_maison.set_edit_text("1")
     depart.profondeur_ouvrage.set_edit_text("2")
-    depart.item3.set_edit_text("3")
+    depart.item3.set_edit_text("888")
     depart.profondeur_radier.set_edit_text("4") 
     depart.heuteur_total.set_edit_text("5")
 
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     arrive = get_arrive(regards)
     arrive.n_maison.set_edit_text("1")
     arrive.profondeur_ouvrage.set_edit_text("2")
-    arrive.item3.set_edit_text("3")
+    arrive.item3.set_edit_text("888")
     arrive.profondeur_radier.set_edit_text("4")
     arrive.heuteur_total.set_edit_text("5")
 
@@ -53,4 +53,4 @@ if __name__ == "__main__":
 
     # identification.operator_name.set_edit_text("Test Operator")
     
-    # carac.print_control_identifiers()
+    carac.print_control_identifiers()
