@@ -2,7 +2,7 @@
 import logging
 
 from lib.connect import connect_to_canalyse, get_caracteristique_window, get_main_window
-from lib.troncons import get_list_troncons, click_troncon
+from lib.troncons import get_list_troncons, select_troncon
 from lib.buttons import click_modification_parametres
 
 logging.basicConfig(
@@ -19,8 +19,8 @@ if __name__ == "__main__":
     LOGGER.debug("Main window: %r", window)
 
     troncons = get_list_troncons(window)
-    click_troncon(window, troncons, 10)
-    LOGGER.debug("Clicked troncon: %r", troncons[10])
+    select_troncon(window, troncons, 10)
+    LOGGER.debug("Selected troncon: %r", troncons[10])
 
     click_modification_parametres(window)
 
