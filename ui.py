@@ -270,8 +270,8 @@ class TronconDialog(tk.Toplevel):
 
 
 class App(tk.Tk):
-    BASE_SIZE = (900, 620)
-    SCALE_INIT = 1.2
+    BASE_SIZE = (900, 720)
+    SCALE_INIT = 1.0
     SCALE_STEP = 0.1
     SCALE_MIN = 0.8
     SCALE_MAX = 2.0
