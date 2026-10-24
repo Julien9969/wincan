@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # LOGGER.debug("Selected troncon: %r", troncons[10])
 
     # click_modification_parametres(window)
-    list_child_windows(window)
+    # list_child_windows(window)
     carac = get_caracteristique_window(window)
     carac.set_focus()
 
