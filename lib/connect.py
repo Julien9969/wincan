@@ -1,9 +1,7 @@
 
 import logging
 
-from pywinauto import Application, WindowSpecification
-import pywinauto
-from pywinauto.timings import TimeoutError as PyWinAutoTimeoutError
+from pywinauto import Application, Desktop, WindowSpecification
 from pywinauto.timings import Timings
 
 APP_PATH = r"C:\Program Files (x86)\Canalyse 2\Canalyse2.exe"
@@ -37,5 +35,23 @@ def get_main_window(app) -> WindowSpecification:
 def get_caracteristique_window(app) -> WindowSpecification:
     return get_window(app, CARACTERISTIQUE_WINDOW_NAME)
 
+
+def list_windows(app=None):
+    """Log visible top-level windows available to the automation session."""
+    windows = app.windows() if app is not None else Desktop(backend="uia").windows()
+    LOGGER.info("Found %d top-level window(s):", len(windows))
+    for index, window in enumerate(windows):
+        LOGGER.info(
+            "  [%d] title=%r handle=%s class=%r process=%s visible=%s",
+            index,
+            window.window_text(),
+            window.handle,
+            window.element_info.class_name,
+            window.process_id(),
+            window.is_visible(),
+        )
+    return windows
+
+
 if __name__ == "__main__":
-    connect_to_canalyse()
+    list_windows(connect_to_canalyse())
