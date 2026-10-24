@@ -38,6 +38,13 @@ def select_troncon(window: WindowSpecification, troncons: List[WindowSpecificati
     LOGGER.debug("Selecting troncon: %d", n)
     troncon = next((t for t in troncons if t.window_text().startswith(f"{TRONÇON_TEXT_PREFIX}{n}")), None)
     if not troncon:
+        for troncon in troncons:
+            LOGGER.debug(
+                "Troncon: title=%r, handle=%s, visible=%s",
+                troncon.window_text(),
+                troncon.handle,
+                troncon.is_visible(),
+            )
         raise ValueError("Troncon not found")
 
     LOGGER.info(
@@ -45,7 +52,6 @@ def select_troncon(window: WindowSpecification, troncons: List[WindowSpecificati
         troncon.window_text(),
         "TreeItem",
     )
-
 
     try:
         if troncon.is_selected():

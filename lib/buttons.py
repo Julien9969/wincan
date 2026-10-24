@@ -29,14 +29,14 @@ def click_button(window: WindowSpecification, button_text: str):
     )
     button = window.child_window(title=button_text, control_type="Button")
 
-    try:
-        button.wait("ready", timeout=10)
-    except PyWinAutoTimeoutError:
-        LOGGER.exception(
-            "Target button was not ready. Dumping the UI control tree for inspection."
-        )
-        window.print_control_identifiers()
-        raise
+    # try:
+    #     button.wait("ready", timeout=10)
+    # except PyWinAutoTimeoutError:
+    #     LOGGER.exception(
+    #         "Target button was not ready. Dumping the UI control tree for inspection."
+    #     )
+    #     window.print_control_identifiers()
+    #     raise
 
     if not button.is_enabled():
         raise RuntimeError(f"Button {button_text!r} is disabled")
