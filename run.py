@@ -35,4 +35,4 @@ if __name__ == "__main__":
     
     open_regards_tab(carac)
     
-    # carac.print_control_identifiers()
+    carac.print_control_identifiers()

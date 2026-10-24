@@ -41,18 +41,11 @@ def open_regards_tab(dialog: WindowSpecification):
         control_type="TabItem",
     )
     LOGGER.debug("Tab text: %s", tab.window_text())
-    
-    tab.wait("ready", timeout=10)
 
     try:
         tab.select()
     except (AttributeError, NotImplementedError):
         tab.click_input()
 
-    pane = dialog.child_window(
-        title_re=REGARDS_TAB_TITLE,
-        control_type="Pane",
-    )
-    pane.wait("visible", timeout=10)
     LOGGER.info("Regards tab is open")
-    return pane
+    
