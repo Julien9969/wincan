@@ -8,7 +8,7 @@ from pywinauto.timings import Timings
 
 
 APP_PATH = r"C:\Program Files (x86)\Canalyse 2\Canalyse2.exe"
-WINDOW_TITLE_RE = r".*Canalyse 2.*"
+WINDOW_TITLE_RE = r".*Canalyse*"
 BUTTON_TEXT = "Modification des paramètres"
 
 logging.basicConfig(
