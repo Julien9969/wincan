@@ -18,11 +18,11 @@ if __name__ == "__main__":
 
     LOGGER.debug("Main window: %r", window)
 
-    troncons = get_list_troncons(window)
-    select_troncon(window, troncons, 10)
-    LOGGER.debug("Selected troncon: %r", troncons[10])
+    # troncons = get_list_troncons(window)
+    # select_troncon(window, troncons, 10)
+    # LOGGER.debug("Selected troncon: %r", troncons[10])
 
-    click_modification_parametres(window)
+    # click_modification_parametres(window)
 
     carac = get_caracteristique_window(app)
     carac.set_focus()

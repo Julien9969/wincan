@@ -7,8 +7,8 @@ from pywinauto.timings import TimeoutError as PyWinAutoTimeoutError
 from pywinauto.timings import Timings
 
 APP_PATH = r"C:\Program Files (x86)\Canalyse 2\Canalyse2.exe"
-MAIN_WINDOW_NAME = r".*Canalyse*"
-CARACTERISTIQUE_WINDOW_NAME = r".*Caractéristiques du tronçon*"
+MAIN_WINDOW_NAME = r".*Canalyse.*"
+CARACTERISTIQUE_WINDOW_NAME = r".*Caractéristiques.*"
 LOGGER = logging.getLogger(__name__)
 
 
