@@ -8,7 +8,7 @@ from pywinauto.timings import Timings
 
 APP_PATH = r"C:\Program Files (x86)\Canalyse 2\Canalyse2.exe"
 MAIN_WINDOW_NAME = r".*Canalyse*"
-
+CARACTERISTIQUE_WINDOW_NAME = r".*Caractéristiques du tronçon*"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -33,6 +33,9 @@ def get_window(app, window_title_re) -> WindowSpecification:
 
 def get_main_window(app) -> WindowSpecification:
     return get_window(app, MAIN_WINDOW_NAME)
+
+def get_caracteristique_window(app) -> WindowSpecification:
+    return get_window(app, CARACTERISTIQUE_WINDOW_NAME)
 
 if __name__ == "__main__":
     connect_to_canalyse()

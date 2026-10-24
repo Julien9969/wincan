@@ -35,7 +35,7 @@ def click_troncon(window: WindowSpecification, troncons: List[WindowSpecificatio
     if n < 0 or n >= len(troncons):
         raise ValueError("Index out of range")
 
-
+    LOGGER.debug("Clicking troncon: %d", n)
     troncon = next((t for t in troncons if t.window_text().startswith(f"{TRONÇON_TEXT_PREFIX}{n}")), None)
     if not troncon:
         raise ValueError("Troncon not found")
