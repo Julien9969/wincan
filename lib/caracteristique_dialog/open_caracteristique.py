@@ -6,8 +6,8 @@ from pywinauto import WindowSpecification
 LOGGER = logging.getLogger(__name__)
 
 DIALOG_TITLE_RE = r".*Caractéristiques du tronçon.*"
-COLLECTEUR_TAB_TITLE = "Caractéristiques du collecteur"
-REGARDS_TAB_TITLE = "Regards de visite & fiches simplifiées"
+COLLECTEUR_TAB_TITLE = r".*Caractéristiques du collecteur.*"
+REGARDS_TAB_TITLE = r".*Regards de visite & fiches simplifiées.*"
 
 
 def open_collecteur_tab(dialog: WindowSpecification) -> WindowSpecification:
@@ -26,7 +26,6 @@ def open_collecteur_tab(dialog: WindowSpecification) -> WindowSpecification:
 
     pane = dialog.child_window(
         title=COLLECTEUR_TAB_TITLE,
-        auto_id="657172",
         control_type="Pane",
     )
     pane.wait("visible", timeout=10)
@@ -50,9 +49,8 @@ def open_regards_tab(dialog: WindowSpecification) -> WindowSpecification:
 
     pane = dialog.child_window(
         title=REGARDS_TAB_TITLE,
-        auto_id="528180",
         control_type="Pane",
     )
-    pane.wait("visible", timeout=10)
+    # pane.wait("visible", timeout=10)
     LOGGER.info("Regards tab is open")
     return pane

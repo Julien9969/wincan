@@ -41,22 +41,18 @@ def get_collector_controls(pane: WindowSpecification) -> CollectorControls:
     """Return named controls from the already-selected collector pane."""
     canalisation = pane.child_window(
         title="Caractéristiques de la canalisation",
-        auto_id="657300",
         control_type="Pane",
     )
     tuyaux = pane.child_window(
         title="Caractéristiques des tuyaux",
-        auto_id="591652",
         control_type="Pane",
     )
     observations = pane.child_window(
         title="Observations / Conclusion",
-        auto_id="722694",
         control_type="Pane",
     )
     identification = pane.child_window(
         title="Identification",
-        auto_id="136080",
         control_type="Pane",
     )
 
@@ -69,27 +65,22 @@ def get_collector_controls(pane: WindowSpecification) -> CollectorControls:
         identification=identification,
         operator_name=_edit(identification, "136082"),
         inspection_date=identification.child_window(
-            auto_id="136070",
             control_type="Pane",
         ),
         inspection_time=identification.child_window(
-            auto_id="136074",
             control_type="Pane",
         ),
         reference=_edit(identification, "136072"),
         curage=pane.child_window(
             title="Curage réalisé avant l'inspection",
-            auto_id="136026",
             control_type="CheckBox",
         ),
         ouvrage_sous_nappe=pane.child_window(
             title="Ouvrage sous nappe",
-            auto_id="136028",
             control_type="CheckBox",
         ),
         temperature_sous_zero=pane.child_window(
             title="Température < 0°C",
-            auto_id="201560",
             control_type="CheckBox",
         ),
         canalisation_edits=(_edit(canalisation, "135998"),),
