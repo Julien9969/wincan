@@ -33,24 +33,24 @@ def open_collecteur_tab(dialog: WindowSpecification) -> WindowSpecification:
     return pane
 
 
-def open_regards_tab(dialog: WindowSpecification) -> WindowSpecification:
+def open_regards_tab(dialog: WindowSpecification):
     """Select the Regards tab and return its content pane."""
     LOGGER.info("Opening tab %r", REGARDS_TAB_TITLE)
     tab = dialog.child_window(
         title=REGARDS_TAB_TITLE,
         control_type="TabItem",
     )
-    tab.wait("ready", timeout=10)
+    LOGGER.debug("Tab text: %s", tab.window_text())
+    # tab.wait("ready", timeout=10)
 
     try:
         tab.select()
     except (AttributeError, NotImplementedError):
         tab.click_input()
 
-    pane = dialog.child_window(
-        title=REGARDS_TAB_TITLE,
-        control_type="Pane",
-    )
+    # pane = dialog.child_window(
+    #     title=REGARDS_TAB_TITLE,
+    #     control_type="Pane",
+    # )
     # pane.wait("visible", timeout=10)
     LOGGER.info("Regards tab is open")
-    return pane

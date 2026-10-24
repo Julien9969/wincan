@@ -36,79 +36,93 @@ class RegardsControls:
     new_inspection_direction_right: WindowSpecification
 
 
-def _combo(parent: WindowSpecification, auto_id: str) -> WindowSpecification:
-    return parent.child_window(auto_id=auto_id, control_type="ComboBox")
+def _items(parent: WindowSpecification, control_type: str):
+    return parent.descendants(control_type=control_type)
 
 
-def _edit(parent: WindowSpecification, auto_id: str) -> WindowSpecification:
-    return parent.child_window(auto_id=auto_id, control_type="Edit")
+def _panes(parent: WindowSpecification):
+    return parent.children(control_type="Pane")
 
 
-def _pane(parent: WindowSpecification, auto_id: str) -> WindowSpecification:
-    return parent.child_window(auto_id=auto_id, control_type="Pane")
+def _radio_buttons(parent: WindowSpecification):
+    return _items(parent, "RadioButton")
 
 
-def _radio(parent: WindowSpecification, title: str, auto_id: str):
-    return parent.child_window(
-        title=title,
-        auto_id=auto_id,
-        control_type="RadioButton",
-    )
-
-
-def _button(parent: WindowSpecification, auto_id: str) -> WindowSpecification:
-    return parent.child_window(
-        title="Nouveau",
-        auto_id=auto_id,
-        control_type="Button",
-    )
+def _new_buttons(parent: WindowSpecification):
+    return [
+        button for button in _items(parent, "Button")
+        if button.window_text() == "Nouveau"
+    ]
 
 
 def get_regards_controls(pane: WindowSpecification) -> RegardsControls:
     """Build selectors from the pane returned by ``open_regards_tab``."""
-    arrival_node = _pane(pane, "460628")
-    departure_node = _pane(pane, "528186")
-    arrival_infiltration = _pane(arrival_node, "657230")
-    arrival_cunette = _pane(arrival_node, "790338")
-    departure_infiltration = _pane(departure_node, "722954")
-    departure_cunette = _pane(departure_node, "789110")
+    sections = _panes(pane)
+    if len(sections) < 4:
+        raise RuntimeError(
+            "Expected Regards tab panes in order: arrival, departure, "
+            "flow direction, inspection direction"
+        )
+    arrival_node, departure_node, flow_direction, inspection_direction = sections[:4]
+
+    arrival_sections = _panes(arrival_node)
+    departure_sections = _panes(departure_node)
+    if len(arrival_sections) < 2 or len(departure_sections) < 2:
+        raise RuntimeError("Expected infiltration and cunette panes for both nodes")
+
+    arrival_infiltration, arrival_cunette = arrival_sections[:2]
+    departure_infiltration, departure_cunette = departure_sections[:2]
+    arrival_edits = _items(arrival_node, "Edit")
+    departure_edits = _items(departure_node, "Edit")
+    arrival_combos = _items(arrival_node, "ComboBox")
+    departure_combos = _items(departure_node, "ComboBox")
+    arrival_infiltration_radios = _radio_buttons(arrival_infiltration)
+    arrival_cunette_radios = _radio_buttons(arrival_cunette)
+    departure_infiltration_radios = _radio_buttons(departure_infiltration)
+    departure_cunette_radios = _radio_buttons(departure_cunette)
+    inspection_buttons = _new_buttons(inspection_direction)
+    inspection_combos = _items(inspection_direction, "ComboBox")
+
+    if not all(
+        (
+            len(arrival_edits) >= 1,
+            len(departure_edits) >= 1,
+            len(arrival_combos) >= 2,
+            len(departure_combos) >= 2,
+            len(arrival_infiltration_radios) >= 2,
+            len(arrival_cunette_radios) >= 2,
+            len(departure_infiltration_radios) >= 2,
+            len(departure_cunette_radios) >= 2,
+            len(inspection_buttons) >= 2,
+            len(inspection_combos) >= 2,
+        )
+    ):
+        raise RuntimeError("Regards tab control order does not match the known UI")
 
     return RegardsControls(
         pane=pane,
         arrival_node=arrival_node,
         departure_node=departure_node,
-        flow_direction=_pane(pane, "201662"),
-        inspection_direction=_pane(pane, "331582"),
-        arrival_combos=(
-            _combo(arrival_node, "724784"),
-            _combo(arrival_node, "1311628"),
-        ),
-        arrival_name=_edit(arrival_node, "1001"),
-        arrival_edits=tuple(
-            _edit(arrival_node, auto_id)
-            for auto_id in ("201590", "136048", "266910", "397794", "332594")
-        ),
-        departure_combos=(
-            _combo(departure_node, "657254"),
-            _combo(departure_node, "722824"),
-        ),
-        departure_name=_edit(departure_node, "1001"),
-        departure_edits=tuple(
-            _edit(departure_node, auto_id)
-            for auto_id in ("332580", "463664", "463610", "398108", "201664")
-        ),
+        flow_direction=flow_direction,
+        inspection_direction=inspection_direction,
+        arrival_combos=tuple(arrival_combos),
+        arrival_name=arrival_edits[0],
+        arrival_edits=tuple(arrival_edits),
+        departure_combos=tuple(departure_combos),
+        departure_name=departure_edits[0],
+        departure_edits=tuple(departure_edits),
         arrival_infiltration=arrival_infiltration,
-        arrival_infiltration_yes=_radio(arrival_infiltration, "Oui", "591684"),
-        arrival_infiltration_no=_radio(arrival_infiltration, "Non", "526150"),
+        arrival_infiltration_yes=arrival_infiltration_radios[1],
+        arrival_infiltration_no=arrival_infiltration_radios[0],
         arrival_cunette=arrival_cunette,
-        arrival_cunette_yes=_radio(arrival_cunette, "Oui", "526348"),
-        arrival_cunette_no=_radio(arrival_cunette, "Non", "591904"),
+        arrival_cunette_yes=arrival_cunette_radios[1],
+        arrival_cunette_no=arrival_cunette_radios[0],
         departure_infiltration=departure_infiltration,
-        departure_infiltration_yes=_radio(departure_infiltration, "Oui", "657268"),
-        departure_infiltration_no=_radio(departure_infiltration, "Non", "591736"),
+        departure_infiltration_yes=departure_infiltration_radios[1],
+        departure_infiltration_no=departure_infiltration_radios[0],
         departure_cunette=departure_cunette,
-        departure_cunette_yes=_radio(departure_cunette, "Oui", "920228"),
-        departure_cunette_no=_radio(departure_cunette, "Non", "526156"),
-        new_inspection_direction_left=_button(pane, "201668"),
-        new_inspection_direction_right=_button(pane, "201670"),
+        departure_cunette_yes=departure_cunette_radios[1],
+        departure_cunette_no=departure_cunette_radios[0],
+        new_inspection_direction_left=inspection_buttons[0],
+        new_inspection_direction_right=inspection_buttons[1],
     )
