@@ -43,9 +43,10 @@ def open_regards_tab(dialog: WindowSpecification):
     LOGGER.debug("Tab text: %s", tab.window_text())
 
     try:
-        tab.select()
-    except (AttributeError, NotImplementedError):
+        # tab.select()
         tab.click_input()
-
+    except (AttributeError, NotImplementedError):
+        LOGGER.info("Tab selection is unavailable")
+        raise RuntimeError("Cannot select the Regards tab")
     LOGGER.info("Regards tab is open")
     
