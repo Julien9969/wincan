@@ -29,84 +29,49 @@ class CollectorControls:
     observation_edits: tuple[WindowSpecification, ...]
 
 
-def _combo(pane: WindowSpecification, auto_id: str) -> WindowSpecification:
-    return pane.child_window(auto_id=auto_id, control_type="ComboBox")
+def _items(pane: WindowSpecification, control_type: str):
+    return pane.descendants(control_type=control_type)
 
 
-def _edit(pane: WindowSpecification, auto_id: str) -> WindowSpecification:
-    return pane.child_window(auto_id=auto_id, control_type="Edit")
+def _pane(parent: WindowSpecification, title: str) -> WindowSpecification:
+    return parent.child_window(title=title, control_type="Pane")
 
 
 def get_collector_controls(pane: WindowSpecification) -> CollectorControls:
-    """Return named controls from the already-selected collector pane."""
-    canalisation = pane.child_window(
-        title="Caractéristiques de la canalisation",
-        auto_id="657300",
-        control_type="Pane",
-    )
-    tuyaux = pane.child_window(
-        title="Caractéristiques des tuyaux",
-        auto_id="591652",
-        control_type="Pane",
-    )
-    observations = pane.child_window(
-        title="Observations / Conclusion",
-        auto_id="722694",
-        control_type="Pane",
-    )
-    identification = pane.child_window(
-        title="Identification",
-        auto_id="136080",
-        control_type="Pane",
-    )
+    """Return controls by pane and UI-tree order, without automation IDs."""
+    adresse = _pane(pane, "Adresse / Situation")
+    intervention = _pane(pane, "Conditions d'intervention")
+    canalisation = _pane(pane, "Caractéristiques de la canalisation")
+    tuyaux = _pane(pane, "Caractéristiques des tuyaux")
+    observations = _pane(pane, "Observations / Conclusion")
+    identification = _pane(pane, "Identification")
+
+    adresse_combos = _items(adresse, "ComboBox")
+    canalisation_combos = _items(canalisation, "ComboBox")
+    canalisation_edits = _items(canalisation, "Edit")
+    tuyaux_combos = _items(tuyaux, "ComboBox")
+    tuyaux_edits = _items(tuyaux, "Edit")
+    identification_edits = _items(identification, "Edit")
+    identification_panes = _items(identification, "Pane")
+    intervention_checkboxes = _items(intervention, "CheckBox")
 
     return CollectorControls(
         pane=pane,
-        emplacement=_combo(pane, "920082"),
+        emplacement=adresse_combos[0],
         canalisation=canalisation,
         tuyaux=tuyaux,
         observations=observations,
         identification=identification,
-        operator_name=_edit(identification, "136082"),
-        inspection_date=identification.child_window(
-            auto_id="136070",
-            control_type="Pane",
-        ),
-        inspection_time=identification.child_window(
-            auto_id="136074",
-            control_type="Pane",
-        ),
-        reference=_edit(identification, "136072"),
-        curage=pane.child_window(
-            title="Curage réalisé avant l'inspection",
-            auto_id="136026",
-            control_type="CheckBox",
-        ),
-        ouvrage_sous_nappe=pane.child_window(
-            title="Ouvrage sous nappe",
-            auto_id="136028",
-            control_type="CheckBox",
-        ),
-        temperature_sous_zero=pane.child_window(
-            title="Température < 0°C",
-            auto_id="201560",
-            control_type="CheckBox",
-        ),
-        canalisation_edits=(_edit(canalisation, "135998"),),
-        canalisation_combos=tuple(
-            _combo(canalisation, auto_id)
-            for auto_id in ("657274", "722754", "724678", "724174")
-        ),
-        tuyaux_edits=tuple(
-            _edit(tuyaux, auto_id)
-            for auto_id in ("136014", "136032", "136012")
-        ),
-        tuyaux_combos=tuple(
-            _combo(tuyaux, auto_id)
-            for auto_id in ("591378", "329806", "331580", "658030")
-        ),
-        observation_edits=tuple(
-            _edit(observations, auto_id)
-            for auto_id in ("1001", "136124")
-        ),
+        operator_name=identification_edits[0],
+        inspection_date=identification_panes[-1],
+        inspection_time=identification_panes[0],
+        reference=identification_edits[-1],
+        curage=intervention_checkboxes[1],
+        ouvrage_sous_nappe=intervention_checkboxes[0],
+        temperature_sous_zero=intervention_checkboxes[2],
+        canalisation_edits=tuple(canalisation_edits),
+        canalisation_combos=tuple(canalisation_combos),
+        tuyaux_edits=tuple(tuyaux_edits),
+        tuyaux_combos=tuple(tuyaux_combos),
+        observation_edits=tuple(_items(observations, "Edit")),
     )
