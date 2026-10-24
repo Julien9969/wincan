@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<Project commune="AAA" adresse="SSS" operateur="Kais Mougeot" date="DDD">
+  <Troncons>
+    <Troncon depart="G1" arrivee="B1" direction="A" hauteur_diametre="23" profondeur_depart="12" profondeur_arrivee="13" propriete_fonciere="B" usage_reseau="A" type_ecoulement="A" etat_reseau="B" statut_reseau="A" forme="A" materiau="A" nom="Tronçon n° 1" curage="1"/>
+    <Troncon depart="B1" arrivee="RB1 - G1" direction="B" hauteur_diametre="" profondeur_depart="" profondeur_arrivee="" propriete_fonciere="A" usage_reseau="A" type_ecoulement="A" etat_reseau="A" statut_reseau="" forme="A" materiau="A" nom="Tronçon n° 2" curage="1"/>
+  </Troncons>
+</Project>
