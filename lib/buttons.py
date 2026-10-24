@@ -1,9 +1,8 @@
 import logging
 
-import pywinauto
-from pywinauto import Application, WindowSpecification
+from _ctypes import COMError
+from pywinauto import WindowSpecification
 from pywinauto.timings import TimeoutError as PyWinAutoTimeoutError
-from pywinauto.timings import Timings
 
 
 BUTTON_TEXT = "Modification des paramètres"
@@ -39,9 +38,21 @@ def click_button(window: WindowSpecification, button_text: str):
         window.print_control_identifiers()
         raise
 
-    LOGGER.info("Invoking button %r", button_text)
-    button.invoke()
-    LOGGER.info("Button invoked successfully")
+    if not button.is_enabled():
+        raise RuntimeError(f"Button {button_text!r} is disabled")
+
+    LOGGER.info("Activating button %r", button_text)
+    try:
+        button.invoke()
+        LOGGER.info("Button invoked successfully")
+    except COMError:
+        LOGGER.warning(
+            "UIA Invoke failed for %r; falling back to click_input()",
+            button_text,
+            exc_info=True,
+        )
+        button.click_input()
+        LOGGER.info("Button clicked successfully")
 
 
 def click_modification_parametres(window: WindowSpecification):
