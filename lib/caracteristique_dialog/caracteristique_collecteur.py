@@ -1,8 +1,12 @@
 """Selectors for controls on the "Caractéristiques du collecteur" tab."""
 
+import logging
 from dataclasses import dataclass
 
 from pywinauto import WindowSpecification
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -60,17 +64,38 @@ class FieldSectionControls:
 
 
 def _items(pane: WindowSpecification, control_type: str):
-    return pane.descendants(control_type=control_type)
+    LOGGER.debug("Searching collector pane for %s controls", control_type)
+    controls = pane.descendants(control_type=control_type)
+    LOGGER.debug("Found %d %s control(s)", len(controls), control_type)
+    return controls
 
 
 def _pane(parent: WindowSpecification, title: str) -> WindowSpecification:
-    return parent.child_window(title=title, control_type="Pane")
+    LOGGER.debug("Resolving collector pane %r", title)
+    section = parent.child_window(title=title, control_type="Pane")
+    LOGGER.debug("Resolved collector pane %r", title)
+    return section
 
 
 def get_identification_controls(pane: WindowSpecification) -> IdentificationControls:
+    LOGGER.info("Loading collector identification controls")
     identification = _pane(pane, "Identification")
     edits = _items(identification, "Edit")
     panes = _items(identification, "Pane")
+    LOGGER.debug(
+        "Identification controls: %d edit control(s), %d nested pane(s)",
+        len(edits),
+        len(panes),
+    )
+    if len(edits) < 2 or len(panes) < 2:
+        LOGGER.error(
+            "Identification controls are incomplete: %d edit(s), %d nested pane(s)",
+            len(edits),
+            len(panes),
+        )
+        raise RuntimeError(
+            "Identification pane does not expose the expected controls"
+        )
     return IdentificationControls(
         pane=identification,
         reference=edits[0],
@@ -81,8 +106,18 @@ def get_identification_controls(pane: WindowSpecification) -> IdentificationCont
 
 
 def get_intervention_controls(pane: WindowSpecification) -> InterventionControls:
+    LOGGER.info("Loading collector intervention controls")
     intervention = _pane(pane, "Conditions d'intervention")
     checkboxes = _items(intervention, "CheckBox")
+    if len(checkboxes) < 3:
+        LOGGER.error(
+            "Intervention pane has %d checkbox(es); expected at least 3",
+            len(checkboxes),
+        )
+        raise RuntimeError(
+            "Intervention pane does not expose the expected checkboxes"
+        )
+    LOGGER.debug("Intervention controls mapped: %d checkbox(es)", len(checkboxes))
     return InterventionControls(
         pane=intervention,
         ouvrage_sous_nappe=checkboxes[0],
@@ -92,44 +127,69 @@ def get_intervention_controls(pane: WindowSpecification) -> InterventionControls
 
 
 def get_adresse_controls(pane: WindowSpecification) -> AdresseControls:
+    LOGGER.info("Loading collector address controls")
     adresse = _pane(pane, "Adresse / Situation")
-    return AdresseControls(
-        pane=adresse,
-        emplacement=_items(adresse, "ComboBox")[0],
-    )
+    combos = _items(adresse, "ComboBox")
+    if not combos:
+        LOGGER.error("Address pane has no combo boxes")
+        raise RuntimeError("Address pane does not expose an emplacement combo box")
+    LOGGER.debug("Address controls mapped: %d combo box(es)", len(combos))
+    return AdresseControls(pane=adresse, emplacement=combos[0])
 
 
 def get_canalisation_controls(pane: WindowSpecification) -> FieldSectionControls:
+    LOGGER.info("Loading collector canalisation controls")
     section = _pane(pane, "Caractéristiques de la canalisation")
+    edits = tuple(_items(section, "Edit"))
+    combos = tuple(_items(section, "ComboBox"))
+    LOGGER.debug(
+        "Canalisation controls mapped: %d edit control(s), %d combo box(es)",
+        len(edits),
+        len(combos),
+    )
     return FieldSectionControls(
         pane=section,
-        edits=tuple(_items(section, "Edit")),
-        combos=tuple(_items(section, "ComboBox")),
+        edits=edits,
+        combos=combos,
     )
 
 
 def get_tuyaux_controls(pane: WindowSpecification) -> FieldSectionControls:
+    LOGGER.info("Loading collector tuyaux controls")
     section = _pane(pane, "Caractéristiques des tuyaux")
+    edits = tuple(_items(section, "Edit"))
+    combos = tuple(_items(section, "ComboBox"))
+    LOGGER.debug(
+        "Tuyaux controls mapped: %d edit control(s), %d combo box(es)",
+        len(edits),
+        len(combos),
+    )
     return FieldSectionControls(
         pane=section,
-        edits=tuple(_items(section, "Edit")),
-        combos=tuple(_items(section, "ComboBox")),
+        edits=edits,
+        combos=combos,
     )
 
 
 def get_observations_controls(pane: WindowSpecification) -> tuple[WindowSpecification, ...]:
+    LOGGER.info("Loading collector observation controls")
     section = _pane(pane, "Observations / Conclusion")
-    return tuple(_items(section, "Edit"))
+    edits = tuple(_items(section, "Edit"))
+    LOGGER.debug("Observation controls mapped: %d edit control(s)", len(edits))
+    return edits
 
 
 def get_collector_controls(pane: WindowSpecification) -> CollectorControls:
     """Return controls by pane and UI-tree order, without automation IDs."""
+    LOGGER.info("Loading all collector controls")
     adresse = get_adresse_controls(pane)
     intervention = get_intervention_controls(pane)
     canalisation = get_canalisation_controls(pane)
     tuyaux = get_tuyaux_controls(pane)
     observations = _pane(pane, "Observations / Conclusion")
     identification = get_identification_controls(pane)
+    observation_edits = get_observations_controls(pane)
+    LOGGER.info("All collector controls loaded successfully")
 
     return CollectorControls(
         pane=pane,
@@ -149,5 +209,5 @@ def get_collector_controls(pane: WindowSpecification) -> CollectorControls:
         canalisation_combos=canalisation.combos,
         tuyaux_edits=tuyaux.edits,
         tuyaux_combos=tuyaux.combos,
-        observation_edits=get_observations_controls(pane),
+        observation_edits=observation_edits,
     )
