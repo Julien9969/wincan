@@ -36,7 +36,10 @@ def select_troncon(window: WindowSpecification, troncons: List[WindowSpecificati
         raise ValueError("Index out of range")
 
     LOGGER.debug("Selecting troncon: %d", n)
-    troncon = next((t for t in troncons if t.window_text().startswith(f"{TRONÇON_TEXT_PREFIX}{n}")), None)
+    troncon = next(
+        (t for t in troncons if t.window_text().startswith(f"{TRONÇON_TEXT_PREFIX}{n + 1}")),
+        None,
+    )
     if not troncon:
         for troncon in troncons:
             LOGGER.debug(
@@ -64,4 +67,3 @@ def select_troncon(window: WindowSpecification, troncons: List[WindowSpecificati
         LOGGER.debug("TreeItem selection is unavailable; using click_input().")
         troncon.click_input()
     LOGGER.info("Troncon selected successfully")
-

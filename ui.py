@@ -19,6 +19,8 @@ Uses only the Python standard library (tkinter) -- nothing to install.
 """
 import os
 import sys
+import queue
+import threading
 import tkinter as tk
 import tkinter.font as tkfont
 from tkinter import ttk, filedialog, messagebox
@@ -83,6 +85,10 @@ DIALOG_SECTIONS = [
         ("direction", "Sens d'écoulement :", "direction"),
         ("profondeur_depart", "Profondeur radier départ (m) :", "text"),
         ("profondeur_arrivee", "Profondeur radier arrivée (m) :", "text"),
+        ("dimension_regard", "Dimension du regard :", "text"),
+        ("profondeur_ouvrage", "Profondeur de l'ouvrage (m) :", "text"),
+        ("profondeur_radier", "Profondeur du radier (m) :", "text"),
+        ("hauteur_total", "Hauteur totale :", "text"),
     ]),
     ("Adresse / Situation", [
         ("emplacement", "Emplacement / Conditions :", "code"),
@@ -110,7 +116,9 @@ TRONCON_XML_ATTR_ORDER = (
     "depart", "arrivee", "direction", "hauteur_diametre",
     "profondeur_depart", "profondeur_arrivee", "emplacement",
     "usage_reseau", "type_ecoulement", "etat_reseau", "statut_reseau",
-    "forme", "materiau", "longueur", "nom", "curage",
+    "forme", "materiau", "longueur", "dimension_regard",
+    "profondeur_ouvrage", "profondeur_radier", "hauteur_total",
+    "nom", "curage",
 )
 
 
@@ -276,6 +284,7 @@ class App(tk.Tk):
         self.project["operateur"] = DEFAULT_OPERATEUR
         self.regards = []   # list[str], unique Regard names -- derived from Tronçons, never created manually
         self.troncons = []  # list[dict] (core.DEFAULT_TRONCON shape + nom/depart/arrivee)
+        self.debug_automation_var = tk.BooleanVar(value=False)
 
         self._build_ui()
         self._apply_scale()
@@ -359,6 +368,17 @@ class App(tk.Tk):
         bottom.pack(fill="x")
         ttk.Button(bottom, text="Charger XML...", command=self.load_xml).pack(side="left", padx=4)
         ttk.Button(bottom, text="Enregistrer XML...", command=self.save_xml).pack(side="left", padx=4)
+        self.automation_button = ttk.Button(
+            bottom,
+            text="Appliquer à Canalyse",
+            command=self.apply_to_canalyse,
+        )
+        self.automation_button.pack(side="left", padx=4)
+        ttk.Checkbutton(
+            bottom,
+            text="Logs DEBUG",
+            variable=self.debug_automation_var,
+        ).pack(side="left", padx=4)
         ttk.Button(bottom, text="Générer fichier .txt...", command=self.generate_txt).pack(side="right", padx=4)
 
         scale_frame = ttk.Frame(bottom)
@@ -512,6 +532,126 @@ class App(tk.Tk):
             return
 
         messagebox.showinfo("Terminé", f"Fichier généré :\n{path}\n({len(self.troncons)} tronçon(s))")
+
+    def apply_to_canalyse(self):
+        if not self.troncons:
+            messagebox.showinfo(
+                "Aucun tronçon",
+                "Chargez ou ajoutez au moins un tronçon avant de lancer l'automatisation.",
+            )
+            return
+
+        from canalyse_automation import apply_troncons
+
+        debug_enabled = self.debug_automation_var.get()
+        dialog = tk.Toplevel(self)
+        dialog.title("Automatisation Canalyse")
+        dialog.resizable(True, True)
+        dialog.minsize(620, 360)
+        dialog.transient(self)
+
+        status_var = tk.StringVar(value="Démarrage...")
+        ttk.Label(dialog, textvariable=status_var).pack(fill="x", padx=10, pady=(10, 4))
+        log_text = tk.Text(dialog, height=16, state="disabled", wrap="none")
+        log_text.pack(fill="both", expand=True, padx=10, pady=4)
+        progress = ttk.Progressbar(dialog, maximum=len(self.troncons), mode="determinate")
+        progress.pack(fill="x", padx=10, pady=(4, 10))
+        button_frame = ttk.Frame(dialog)
+        button_frame.pack(fill="x", padx=10, pady=(0, 10))
+        cancel_event = threading.Event()
+
+        def request_cancel():
+            cancel_event.set()
+            cancel_button.configure(state="disabled")
+            status_var.set("Annulation demandée...")
+
+        cancel_button = ttk.Button(
+            button_frame,
+            text="Annuler",
+            command=request_cancel,
+        )
+        cancel_button.pack(side="left")
+        close_button = ttk.Button(
+            button_frame,
+            text="Fermer",
+            state="disabled",
+            command=dialog.destroy,
+        )
+        close_button.pack(side="right")
+
+        events = queue.Queue()
+        self.automation_button.configure(state="disabled")
+
+        def append_log(level, message):
+            events.put(("log", level, message))
+
+        def update_progress(current, total, message):
+            events.put(("progress", current, total, message))
+
+        def worker():
+            try:
+                apply_troncons(
+                    self.troncons,
+                    self.project.get("operateur", DEFAULT_OPERATEUR),
+                    debug=debug_enabled,
+                    log_callback=append_log,
+                    progress_callback=update_progress,
+                    cancel_event=cancel_event,
+                )
+            except Exception as exc:
+                events.put(("error", exc))
+            else:
+                events.put(("done",))
+
+        threading.Thread(target=worker, name="canalyse-automation", daemon=True).start()
+
+        def poll_events():
+            try:
+                while True:
+                    event = events.get_nowait()
+                    if event[0] == "log":
+                        log_text.configure(state="normal")
+                        log_text.insert("end", f"[{event[1]}] {event[2]}\n")
+                        log_text.see("end")
+                        log_text.configure(state="disabled")
+                    elif event[0] == "progress":
+                        _, current, total, message = event
+                        progress.configure(maximum=total, value=current)
+                        status_var.set(message)
+                    elif event[0] == "error":
+                        self.automation_button.configure(state="normal")
+                        cancel_button.configure(state="disabled")
+                        close_button.configure(state="normal")
+                        status_var.set("Échec de l'automatisation")
+                        messagebox.showerror(
+                            "Erreur d'automatisation",
+                            f"Impossible d'appliquer les paramètres dans Canalyse :\n{event[1]}",
+                            parent=dialog,
+                        )
+                    elif event[0] == "done":
+                        self.automation_button.configure(state="normal")
+                        cancel_button.configure(state="disabled")
+                        close_button.configure(state="normal")
+                        if cancel_event.is_set():
+                            status_var.set("Automatisation annulée")
+                            log_text.configure(state="normal")
+                            log_text.insert("end", "[INFO] Traitement arrêté par l'utilisateur\n")
+                            log_text.see("end")
+                            log_text.configure(state="disabled")
+                        else:
+                            status_var.set("Automatisation terminée")
+                            messagebox.showinfo(
+                                "Terminé",
+                                f"Paramètres appliqués à {len(self.troncons)} tronçon(s) dans Canalyse.",
+                                parent=dialog,
+                            )
+            except queue.Empty:
+                pass
+            if close_button["state"] == "disabled":
+                dialog.after(100, poll_events)
+
+        dialog.protocol("WM_DELETE_WINDOW", lambda: None)
+        poll_events()
 
 
 def main():

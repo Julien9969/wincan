@@ -177,6 +177,10 @@ DEFAULT_TRONCON = {
     "direction": "A",
     "profondeur_depart": "",
     "profondeur_arrivee": "",
+    "dimension_regard": "",
+    "profondeur_ouvrage": "",
+    "profondeur_radier": "",
+    "hauteur_total": "",
 }
 
 # ---------------------------------------------------------------------------
@@ -306,6 +310,10 @@ def parse_source(xml_path):
                 "direction": t.get("direction", DEFAULT_TRONCON["direction"]),
                 "profondeur_depart": t.get("profondeur_depart", ""),
                 "profondeur_arrivee": t.get("profondeur_arrivee", ""),
+                "dimension_regard": t.get("dimension_regard", ""),
+                "profondeur_ouvrage": t.get("profondeur_ouvrage", ""),
+                "profondeur_radier": t.get("profondeur_radier", ""),
+                "hauteur_total": t.get("hauteur_total", ""),
                 "longueur": t.get("longueur", DEFAULT_TRONCON["longueur"]),
             })
             troncons.append(entry)
