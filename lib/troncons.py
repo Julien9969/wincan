@@ -37,6 +37,7 @@ def click_troncon(window: WindowSpecification, troncons: List[WindowSpecificatio
     if n < 0 or n >= len(troncons):
         raise ValueError("Index out of range")
 
+
     troncon = next((t for t in troncons if t.window_text().startswith(f"{TRONÇON_TEXT_PREFIX}{n}")), None)
     if not troncon:
         raise ValueError("Troncon not found")
@@ -47,8 +48,10 @@ def click_troncon(window: WindowSpecification, troncons: List[WindowSpecificatio
         "TreeItem",
     )
 
+    item = window.child_window(title=troncon.window_text(), control_type="TreeItem")
+
     try:
-        troncon.wait("ready", timeout=10)
+        item.wait("ready", timeout=10)
     except PyWinAutoTimeoutError:
         LOGGER.exception(
             "Target troncon was not ready. Dumping the UI control tree for inspection."
@@ -56,8 +59,8 @@ def click_troncon(window: WindowSpecification, troncons: List[WindowSpecificatio
         window.print_control_identifiers()
         raise
 
-    LOGGER.info("Invoking troncon %r", troncon.window_text())
-    troncon.invoke()
+    LOGGER.info("Invoking troncon %r", item.window_text())
+    item.invoke()
     LOGGER.info("Troncon invoked successfully")
 
 
