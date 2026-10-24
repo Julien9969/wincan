@@ -29,8 +29,9 @@ if __name__ == "__main__":
     # list_child_windows(window)
     carac = get_caracteristique_window(window)
     carac.set_focus()
+    regards = open_regards_tab(carac)
 
-    depart = get_depart(carac)
+    depart = get_depart(regards)
     depart.item1.set_edit_text("1")
     depart.item2.set_edit_text("2")
     depart.item3.set_edit_text("3")
@@ -38,20 +39,18 @@ if __name__ == "__main__":
     depart.item5.set_edit_text("5")
 
 
-    arrive = get_arrive(carac)
+    arrive = get_arrive(regards)
     arrive.item1.set_edit_text("1")
     arrive.item2.set_edit_text("2")
     arrive.item3.set_edit_text("3")
     arrive.item4.set_edit_text("4")
     arrive.item5.set_edit_text("5")
 
-    sens_ecoulement = get_sens_ecoulement(carac)
-    sens_ecoulement.click_input()
+    sens_ecoulement = get_sens_ecoulement(regards)
+    sens_ecoulement.pane.click_input()
 
     # identification = get_identification_controls(carac)
 
     # identification.operator_name.set_edit_text("Test Operator")
-    
-    # open_regards_tab(carac)
     
     # carac.print_control_identifiers()

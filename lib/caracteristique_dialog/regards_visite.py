@@ -43,26 +43,34 @@ def _items(parent: WindowSpecification, control_type: str):
 
 
 def _panes(parent: WindowSpecification):
-    LOGGER.debug("Searching Regards tab for top-level panes")
-    panes = parent.children(control_type="Pane")
-    LOGGER.debug("Found %d top-level pane(s)", len(panes))
+    LOGGER.debug("Searching Regards tab for named panes")
+    panes = {
+        "arrive": parent.child_window(
+            title="Noeud d'arrivée",
+            control_type="Pane",
+        ),
+        "depart": parent.child_window(
+            title="Noeud de départ",
+            control_type="Pane",
+        ),
+        "ecoulement": parent.child_window(
+            title="Sens de l'écoulement",
+            control_type="Pane",
+        ),
+        "inspection": parent.child_window(
+            title="Sens de l'inspection",
+            control_type="Pane",
+        ),
+    }
+    LOGGER.debug("Regards panes mapped: %s", ", ".join(panes))
     return panes
 
 
-def _get_section(pane: WindowSpecification, index: int) -> WindowSpecification:
-    LOGGER.debug("Resolving Regards pane at index %d", index)
-    sections = _panes(pane)
-    if len(sections) < 4:
-        LOGGER.error(
-            "Regards tab has %d pane(s); expected at least 4",
-            len(sections),
-        )
-        raise RuntimeError(
-            "Expected Regards panes in order: arrival, departure, "
-            "flow direction, inspection direction"
-        )
-    LOGGER.debug("Resolved Regards pane at index %d", index)
-    return sections[index]
+def _get_section(pane: WindowSpecification, name: str) -> WindowSpecification:
+    LOGGER.debug("Resolving Regards pane %r", name)
+    section = _panes(pane)[name]
+    LOGGER.debug("Resolved Regards pane %r", name)
+    return section
 
 
 def _get_node(node: WindowSpecification) -> NodeControls:
@@ -98,19 +106,19 @@ def _get_node(node: WindowSpecification) -> NodeControls:
 def get_arrive(pane: WindowSpecification) -> NodeControls:
     """Return controls for the arrival node."""
     LOGGER.info("Loading arrival-node controls")
-    return _get_node(_get_section(pane, 0))
+    return _get_node(_get_section(pane, "arrive"))
 
 
 def get_depart(pane: WindowSpecification) -> NodeControls:
     """Return controls for the departure node."""
     LOGGER.info("Loading departure-node controls")
-    return _get_node(_get_section(pane, 1))
+    return _get_node(_get_section(pane, "depart"))
 
 
 def get_sens_inspection(pane: WindowSpecification) -> InspectionDirectionControls:
     """Return controls for the inspection direction."""
     LOGGER.info("Loading inspection-direction controls")
-    section = _get_section(pane, 3)
+    section = _get_section(pane, "inspection")
     buttons = [
         button for button in _items(section, "Button")
         if button.window_text() == "Nouveau"
@@ -140,4 +148,4 @@ def get_sens_inspection(pane: WindowSpecification) -> InspectionDirectionControl
 def get_sens_ecoulement(pane: WindowSpecification) -> FlowDirectionControls:
     """Return the flow-direction pane."""
     LOGGER.info("Loading flow-direction pane")
-    return FlowDirectionControls(pane=_get_section(pane, 2))
+    return FlowDirectionControls(pane=_get_section(pane, "ecoulement"))

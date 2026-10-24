@@ -24,6 +24,7 @@ def open_collecteur_tab(dialog: WindowSpecification):
         LOGGER.info("Tab selection is unavailable")
         raise RuntimeError("Cannot select the collector tab")
     LOGGER.info("Collector tab is open")
+    return dialog
 
 
 def open_regards_tab(dialog: WindowSpecification):
@@ -41,4 +42,5 @@ def open_regards_tab(dialog: WindowSpecification):
         LOGGER.info("Tab selection is unavailable")
         raise RuntimeError("Cannot select the Regards tab")
     LOGGER.info("Regards tab is open")
+    return dialog
     
