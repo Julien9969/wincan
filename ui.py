@@ -19,6 +19,7 @@ Uses only the Python standard library (tkinter) -- nothing to install.
 """
 import os
 import sys
+import logging
 import queue
 import threading
 import tkinter as tk
@@ -29,6 +30,12 @@ from xml.dom import minidom
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import generate_wincan as core
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
 
 
 PROJECT_FIELDS = [
@@ -205,6 +212,7 @@ class TronconDialog(tk.Toplevel):
         ttk.Button(btn_frame, text="OK", command=self._ok).pack(side="right", padx=4)
 
         self.update_idletasks()
+
         x = (self.winfo_screenwidth() - self.winfo_reqwidth()) // 2
         y = (self.winfo_screenheight() - self.winfo_reqheight()) // 2
         self.geometry(f"+{x}+{y}")
@@ -310,6 +318,11 @@ class App(tk.Tk):
         self.geometry(f"{int(self.BASE_SIZE[0] * scale)}x{int(self.BASE_SIZE[1] * scale)}")
         self.update_idletasks()
 
+    def set_license_valid(self):
+        """Display the successful license check in the application header."""
+        self.license_status_label.configure(text="● Licence valide")
+        self.title("Générateur de configuration - EN13508-2 / WinCan — Licence valide")
+
     def change_scale(self, delta):
         new_scale = round(self.scale + delta, 1)
         if not (self.SCALE_MIN <= new_scale <= self.SCALE_MAX):
@@ -320,6 +333,14 @@ class App(tk.Tk):
 
     # ------------------------------------------------------------ UI setup
     def _build_ui(self):
+        self.license_status_label = ttk.Label(
+            self,
+            text="",
+            foreground="#16803c",
+            font=("TkDefaultFont", 10, "bold"),
+        )
+        self.license_status_label.pack(anchor="w", padx=10, pady=(6, 0))
+
         project_frame = ttk.LabelFrame(self, text="Projet", padding=8)
         project_frame.pack(fill="x", padx=8, pady=6)
 
@@ -544,6 +565,9 @@ class App(tk.Tk):
         from canalyse_automation import apply_troncons
 
         debug_enabled = self.debug_automation_var.get()
+        logging.getLogger().setLevel(
+            logging.DEBUG if debug_enabled else logging.INFO
+        )
         dialog = tk.Toplevel(self)
         dialog.title("Automatisation Canalyse")
         dialog.resizable(True, True)
@@ -656,6 +680,12 @@ class App(tk.Tk):
 
 def main():
     app = App()
+    from license_gate import verify_startup_license
+
+    if not verify_startup_license(app):
+        app.destroy()
+        return
+    app.set_license_valid()
     app.mainloop()
 
 

@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 def connect_to_canalyse():
     Timings.window_find_timeout = 5
     LOGGER.info("Connecting to Canalyse 2: %s", APP_PATH)
-    app = Application(backend="uia").connect(path=APP_PATH, timeout=10)
+    app = Application(backend="uia").connect(path=APP_PATH, timeout=1)
     LOGGER.info("Connected to process(es): %s", app.process)
     return app
 
