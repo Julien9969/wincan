@@ -1,14 +1,14 @@
 
 import logging
 
-from lib.caracteristique_dialog.caracteristique_collecteur import get_collector_controls
+from lib.caracteristique_dialog.caracteristique_collecteur import (
+    get_identification_controls,
+)
 from lib.caracteristique_dialog.open_caracteristique import open_regards_tab
-from lib.connect import connect_to_canalyse, get_caracteristique_window, get_main_window, list_child_windows, list_windows
-from lib.troncons import get_list_troncons, select_troncon
-from lib.buttons import click_modification_parametres
+from lib.connect import connect_to_canalyse, get_caracteristique_window
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",
 )
 
@@ -29,9 +29,9 @@ if __name__ == "__main__":
     carac = get_caracteristique_window(window)
     carac.set_focus()
 
-    collector_controls = get_collector_controls(carac)
+    identification = get_identification_controls(carac)
 
-    collector_controls.operator_name.set_text("Test Operator")
+    identification.operator_name.set_edit_text("Test Operator")
     
     open_regards_tab(carac)
     

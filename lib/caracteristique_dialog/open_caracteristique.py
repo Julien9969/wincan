@@ -10,27 +10,20 @@ COLLECTEUR_TAB_TITLE = r".*Caractéristiques du collecteur.*"
 REGARDS_TAB_TITLE = r".*Regards de visite & fiches simplifiées.*"
 
 
-def open_collecteur_tab(dialog: WindowSpecification) -> WindowSpecification:
+def open_collecteur_tab(dialog: WindowSpecification):
     """Select the collector tab and return its content pane."""
     LOGGER.info("Opening tab %r", COLLECTEUR_TAB_TITLE)
     tab = dialog.child_window(
         title_re=COLLECTEUR_TAB_TITLE,
         control_type="TabItem",
     )
-    tab.wait("ready", timeout=10)
-
+    LOGGER.debug("Tab text: %s", tab.window_text())
     try:
-        tab.select()
-    except (AttributeError, NotImplementedError):
         tab.click_input()
-
-    pane = dialog.child_window(
-        title_re=COLLECTEUR_TAB_TITLE,
-        control_type="Pane",
-    )
-    pane.wait("visible", timeout=10)
+    except (AttributeError, NotImplementedError):
+        LOGGER.info("Tab selection is unavailable")
+        raise RuntimeError("Cannot select the collector tab")
     LOGGER.info("Collector tab is open")
-    return pane
 
 
 def open_regards_tab(dialog: WindowSpecification):
@@ -43,7 +36,6 @@ def open_regards_tab(dialog: WindowSpecification):
     LOGGER.debug("Tab text: %s", tab.window_text())
 
     try:
-        # tab.select()
         tab.click_input()
     except (AttributeError, NotImplementedError):
         LOGGER.info("Tab selection is unavailable")

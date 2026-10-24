@@ -36,6 +36,29 @@ class RegardsControls:
     new_inspection_direction_right: WindowSpecification
 
 
+@dataclass(frozen=True)
+class NodeControls:
+    pane: WindowSpecification
+    name: WindowSpecification
+    edits: tuple[WindowSpecification, ...]
+    combos: tuple[WindowSpecification, ...]
+
+
+@dataclass(frozen=True)
+class BinaryChoiceControls:
+    pane: WindowSpecification
+    yes: WindowSpecification
+    no: WindowSpecification
+
+
+@dataclass(frozen=True)
+class InspectionDirectionControls:
+    pane: WindowSpecification
+    combos: tuple[WindowSpecification, ...]
+    new_left: WindowSpecification
+    new_right: WindowSpecification
+
+
 def _items(parent: WindowSpecification, control_type: str):
     return parent.descendants(control_type=control_type)
 
@@ -55,6 +78,66 @@ def _new_buttons(parent: WindowSpecification):
     ]
 
 
+def get_node_controls(
+    pane: WindowSpecification,
+    node_index: int,
+) -> NodeControls:
+    """Load one node pane by its order in the Regards tab."""
+    nodes = _panes(pane)
+    if node_index < 0 or node_index >= 2:
+        raise ValueError("node_index must be 0 (arrival) or 1 (departure)")
+    node = nodes[node_index]
+    edits = tuple(_items(node, "Edit"))
+    combos = tuple(_items(node, "ComboBox"))
+    if not edits or len(combos) < 2:
+        raise RuntimeError("Node pane does not expose the expected controls")
+    return NodeControls(
+        pane=node,
+        name=edits[0],
+        edits=edits,
+        combos=combos,
+    )
+
+
+def get_node_choice_controls(
+    node: WindowSpecification,
+    choice_index: int,
+) -> BinaryChoiceControls:
+    """Load infiltration or cunette controls by nested pane order."""
+    choices = _panes(node)
+    if choice_index < 0 or choice_index >= 2:
+        raise ValueError("choice_index must be 0 (infiltration) or 1 (cunette)")
+    choice = choices[choice_index]
+    radios = _radio_buttons(choice)
+    if len(radios) < 2:
+        raise RuntimeError("Choice pane does not expose two radio buttons")
+    return BinaryChoiceControls(
+        pane=choice,
+        no=radios[0],
+        yes=radios[1],
+    )
+
+
+def get_inspection_direction_controls(
+    pane: WindowSpecification,
+) -> InspectionDirectionControls:
+    """Load the inspection-direction pane and its ordered controls."""
+    sections = _panes(pane)
+    if len(sections) < 4:
+        raise RuntimeError("Regards tab does not expose four top-level panes")
+    direction = sections[3]
+    buttons = _new_buttons(direction)
+    combos = tuple(_items(direction, "ComboBox"))
+    if len(buttons) < 2 or len(combos) < 2:
+        raise RuntimeError("Inspection direction controls are incomplete")
+    return InspectionDirectionControls(
+        pane=direction,
+        combos=combos,
+        new_left=buttons[0],
+        new_right=buttons[1],
+    )
+
+
 def get_regards_controls(pane: WindowSpecification) -> RegardsControls:
     """Build selectors from the pane returned by ``open_regards_tab``."""
     sections = _panes(pane)
@@ -64,40 +147,13 @@ def get_regards_controls(pane: WindowSpecification) -> RegardsControls:
             "flow direction, inspection direction"
         )
     arrival_node, departure_node, flow_direction, inspection_direction = sections[:4]
-
-    arrival_sections = _panes(arrival_node)
-    departure_sections = _panes(departure_node)
-    if len(arrival_sections) < 2 or len(departure_sections) < 2:
-        raise RuntimeError("Expected infiltration and cunette panes for both nodes")
-
-    arrival_infiltration, arrival_cunette = arrival_sections[:2]
-    departure_infiltration, departure_cunette = departure_sections[:2]
-    arrival_edits = _items(arrival_node, "Edit")
-    departure_edits = _items(departure_node, "Edit")
-    arrival_combos = _items(arrival_node, "ComboBox")
-    departure_combos = _items(departure_node, "ComboBox")
-    arrival_infiltration_radios = _radio_buttons(arrival_infiltration)
-    arrival_cunette_radios = _radio_buttons(arrival_cunette)
-    departure_infiltration_radios = _radio_buttons(departure_infiltration)
-    departure_cunette_radios = _radio_buttons(departure_cunette)
-    inspection_buttons = _new_buttons(inspection_direction)
-    inspection_combos = _items(inspection_direction, "ComboBox")
-
-    if not all(
-        (
-            len(arrival_edits) >= 1,
-            len(departure_edits) >= 1,
-            len(arrival_combos) >= 2,
-            len(departure_combos) >= 2,
-            len(arrival_infiltration_radios) >= 2,
-            len(arrival_cunette_radios) >= 2,
-            len(departure_infiltration_radios) >= 2,
-            len(departure_cunette_radios) >= 2,
-            len(inspection_buttons) >= 2,
-            len(inspection_combos) >= 2,
-        )
-    ):
-        raise RuntimeError("Regards tab control order does not match the known UI")
+    arrival = get_node_controls(pane, 0)
+    departure = get_node_controls(pane, 1)
+    arrival_infiltration = get_node_choice_controls(arrival.pane, 0)
+    arrival_cunette = get_node_choice_controls(arrival.pane, 1)
+    departure_infiltration = get_node_choice_controls(departure.pane, 0)
+    departure_cunette = get_node_choice_controls(departure.pane, 1)
+    inspection = get_inspection_direction_controls(pane)
 
     return RegardsControls(
         pane=pane,
@@ -105,24 +161,24 @@ def get_regards_controls(pane: WindowSpecification) -> RegardsControls:
         departure_node=departure_node,
         flow_direction=flow_direction,
         inspection_direction=inspection_direction,
-        arrival_combos=tuple(arrival_combos),
-        arrival_name=arrival_edits[0],
-        arrival_edits=tuple(arrival_edits),
-        departure_combos=tuple(departure_combos),
-        departure_name=departure_edits[0],
-        departure_edits=tuple(departure_edits),
-        arrival_infiltration=arrival_infiltration,
-        arrival_infiltration_yes=arrival_infiltration_radios[1],
-        arrival_infiltration_no=arrival_infiltration_radios[0],
-        arrival_cunette=arrival_cunette,
-        arrival_cunette_yes=arrival_cunette_radios[1],
-        arrival_cunette_no=arrival_cunette_radios[0],
-        departure_infiltration=departure_infiltration,
-        departure_infiltration_yes=departure_infiltration_radios[1],
-        departure_infiltration_no=departure_infiltration_radios[0],
-        departure_cunette=departure_cunette,
-        departure_cunette_yes=departure_cunette_radios[1],
-        departure_cunette_no=departure_cunette_radios[0],
-        new_inspection_direction_left=inspection_buttons[0],
-        new_inspection_direction_right=inspection_buttons[1],
+        arrival_combos=arrival.combos,
+        arrival_name=arrival.name,
+        arrival_edits=arrival.edits,
+        departure_combos=departure.combos,
+        departure_name=departure.name,
+        departure_edits=departure.edits,
+        arrival_infiltration=arrival_infiltration.pane,
+        arrival_infiltration_yes=arrival_infiltration.yes,
+        arrival_infiltration_no=arrival_infiltration.no,
+        arrival_cunette=arrival_cunette.pane,
+        arrival_cunette_yes=arrival_cunette.yes,
+        arrival_cunette_no=arrival_cunette.no,
+        departure_infiltration=departure_infiltration.pane,
+        departure_infiltration_yes=departure_infiltration.yes,
+        departure_infiltration_no=departure_infiltration.no,
+        departure_cunette=departure_cunette.pane,
+        departure_cunette_yes=departure_cunette.yes,
+        departure_cunette_no=departure_cunette.no,
+        new_inspection_direction_left=inspection.new_left,
+        new_inspection_direction_right=inspection.new_right,
     )
