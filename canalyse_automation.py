@@ -109,7 +109,9 @@ def apply_troncons(
     log(logging.INFO, "Recherche de la fenêtre principale...")
     window = get_main_window(app)
     log(logging.INFO, "Fenêtre principale trouvée")
+    log(logging.INFO, "Activation de la fenêtre principale...")
     window.set_focus()
+    log(logging.INFO, "Fenêtre principale activée")
 
     log(logging.INFO, "Recherche des tronçons...")
     troncon_count = len(get_list_troncons(window))
@@ -127,10 +129,14 @@ def apply_troncons(
         progress(row_number, f"Tronçon {row_number}/{len(troncons)}")
         log(logging.INFO, f"Traitement du tronçon {row_number}/{len(troncons)}")
 
+        log(logging.INFO, "Actualisation de la liste des tronçons...")
         current = get_list_troncons(window)
+        log(logging.INFO, f"Liste actualisée : {len(current)} tronçon(s)")
 
         # Canalyse names rows from 1, while the Python list is zero-based.
+        log(logging.INFO, f"Sélection du tronçon {row_number}...")
         select_troncon(window, current, index)
+        log(logging.INFO, f"Tronçon {row_number} sélectionné")
         log(logging.DEBUG, f"Tronçon sélectionné : {troncon.get('nom', row_number)}")
         log(logging.DEBUG, "Ouverture de la fenêtre des caractéristiques")
         click_modification_parametres(window)
