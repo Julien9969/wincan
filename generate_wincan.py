@@ -220,8 +220,8 @@ def build_b01(nom, depart, arrivee, adresse, commune, emplacement, sens_ecouleme
         q(depart),                 # AAD - start node (repeated, as in source files)
         q(arrivee),                # AAF - end node
         q(adresse),                # AAJ - street / location (inherited from project)
-        raw("A"),                  # AAK - Sens d'écoulement (A = base départ->arrivée, B = inverse)
-                                   # This as been hardcoded to "A" because it is the automation that is going to trigger the sens 
+        raw("B"),                  # AAK - Sens d'écoulement (B = base départ->arrivée, A = inverse)
+                                   # This as been hardcoded to "B" because it is the automation that is going to trigger the sens 
         raw(emplacement),          # AAL - Emplacement / Conditions
         q(""),                     # AAM - unused
         q(commune),                # AAN - Commune (inherited from project)

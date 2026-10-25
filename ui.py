@@ -557,12 +557,41 @@ class App(tk.Tk):
                 )
                 for conflict in conflicts
             )
-            messagebox.showwarning(
-                "Valeurs de regard redéfinies",
+            self._show_regard_conflicts(details)
+
+    def _show_regard_conflicts(self, details):
+        dialog = tk.Toplevel(self)
+        dialog.title("Valeurs de regard redéfinies")
+        dialog.transient(self)
+        dialog.resizable(True, True)
+        dialog.minsize(620, 280)
+
+        ttk.Label(
+            dialog,
+            text=(
                 "Certains regards utilisés par plusieurs tronçons ont des "
-                "valeurs différentes :\n\n" + details,
-                parent=self,
-            )
+                "valeurs différentes :"
+            ),
+            wraplength=580,
+            justify="left",
+        ).pack(fill="x", padx=10, pady=(10, 4))
+
+        text = tk.Text(dialog, height=12, width=85, wrap="word")
+        text.pack(fill="both", expand=True, padx=10, pady=4)
+        text.insert("1.0", details)
+        text.configure(state="disabled")
+
+        buttons = ttk.Frame(dialog)
+        buttons.pack(fill="x", padx=10, pady=(4, 10))
+
+        def copy_details():
+            self.clipboard_clear()
+            self.clipboard_append(details)
+            self.update()
+
+        ttk.Button(buttons, text="Copier", command=copy_details).pack(side="left")
+        ttk.Button(buttons, text="Fermer", command=dialog.destroy).pack(side="right")
+        dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
 
     def generate_txt(self):
         if not self.troncons:
