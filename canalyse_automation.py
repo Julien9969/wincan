@@ -62,9 +62,13 @@ def _set_node_values(
                 hauteur_total,
             ),
         )
+    node.dim_regard.set_focus()
     node.dim_regard.set_edit_text(dimension_regard)
+    node.profondeur_ouvrage.set_focus()
     node.profondeur_ouvrage.set_edit_text(profondeur_ouvrage)
+    node.profondeur_radier.set_focus()
     node.profondeur_radier.set_edit_text(profondeur_radier)
+    node.hauteur_total.set_focus()
     node.hauteur_total.set_edit_text(hauteur_total)
 
 
@@ -85,9 +89,9 @@ def apply_troncons(
         raise ValueError("Aucun tronçon à appliquer")
 
     def log(level: int, message: str) -> None:
-        LOGGER.log(level, message)
         if log_callback is not None:
             log_callback(logging.getLevelName(level), message)
+        LOGGER.log(level, message)
 
     def progress(index: int, message: str) -> None:
         if progress_callback is not None:

@@ -623,6 +623,7 @@ class App(tk.Tk):
 
         def worker():
             try:
+                append_log("INFO", "Démarrage du thread d'automatisation")
                 apply_troncons(
                     self.troncons,
                     self.project.get("operateur", DEFAULT_OPERATEUR),
