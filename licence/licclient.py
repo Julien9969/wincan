@@ -220,12 +220,21 @@ class LicenseClient:
             # Only a denial signed by OUR server key counts. Anything else
             # (fake server, captive portal, hijacked domain) is treated as unreachable.
             proof = self._verify_token(resp.get("proof", "")) if resp.get("proof") else None
-            if (proof is None or proof.get("machine_id") != self.machine_id
-                    or proof.get("product") != self.product
-                    or abs(time.time() - proof.get("issued_at", 0)) > 600):
+            if proof is None:
+                untrusted_reason = "invalid_signature_or_proof"
+            elif proof.get("machine_id") != self.machine_id:
+                untrusted_reason = "machine_id_mismatch"
+            elif proof.get("product") != self.product:
+                untrusted_reason = "product_mismatch"
+            elif abs(time.time() - proof.get("issued_at", 0)) > 600:
+                untrusted_reason = "proof_timestamp_invalid"
+            else:
+                untrusted_reason = None
+            if untrusted_reason is not None:
                 LOGGER.warning(
-                    "License server returned an untrusted denial: reason=%s",
+                    "License server returned an untrusted denial: reason=%s validation=%s",
                     resp.get("reason", "unknown"),
+                    untrusted_reason,
                 )
                 return self._unreachable()
             try:
