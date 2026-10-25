@@ -5,10 +5,13 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import messagebox, ttk
 import os
+import logging
 from pathlib import Path
 
 from licence.licclient import LicenseClient, Status
 
+
+LOGGER = logging.getLogger(__name__)
 
 LICENSE_SERVER_URL = "https://lic.trizottoserver.freeddns.org"
 LICENSE_PRODUCT = "wincan"
@@ -37,7 +40,7 @@ def create_license_client() -> LicenseClient:
         try:
             client.set_key(legacy_key.read_text(encoding="utf-8"))
         except (OSError, ValueError):
-            pass
+            LOGGER.warning("Unable to migrate the legacy license key", exc_info=True)
     return client
 
 
@@ -70,13 +73,16 @@ def _ask_for_key(parent: tk.Misc, client: LicenseClient, status: Status) -> bool
     buttons.pack(fill="x", pady=(12, 0))
 
     def cancel() -> None:
+        LOGGER.info("License activation cancelled by the user")
         dialog.destroy()
 
     def verify() -> None:
         key = key_var.get().strip()
         if not key:
+            LOGGER.info("License activation rejected locally: empty key")
             status_var.set("Saisissez une clé de licence.")
             return
+        LOGGER.info("Checking a license key entered during activation")
         verify_button.configure(state="disabled")
         status_var.set("Vérification de la licence...")
         dialog.update_idletasks()
@@ -84,13 +90,24 @@ def _ask_for_key(parent: tk.Misc, client: LicenseClient, status: Status) -> bool
             client.set_key(key)
             checked = client.check()
         except OSError as exc:
+            LOGGER.warning("License activation could not be checked: %s", exc, exc_info=True)
             verify_button.configure(state="normal")
             status_var.set(f"Impossible d'enregistrer la licence : {exc}")
             return
         if checked.ok:
+            LOGGER.info(
+                "License activation accepted: reason=%s offline=%s",
+                checked.reason,
+                checked.offline,
+            )
             result["accepted"] = True
             dialog.destroy()
         else:
+            LOGGER.info(
+                "License activation denied: reason=%s offline=%s",
+                checked.reason,
+                checked.offline,
+            )
             verify_button.configure(state="normal")
             status_var.set(f"Licence refusée : {checked.reason}.")
 
@@ -101,6 +118,7 @@ def _ask_for_key(parent: tk.Misc, client: LicenseClient, status: Status) -> bool
     dialog.bind("<Return>", lambda _event: verify())
     dialog.bind("<Escape>", lambda _event: cancel())
     parent.wait_window(dialog)
+    LOGGER.info("License activation decision: accepted=%s", result["accepted"])
     return result["accepted"]
 
 
@@ -110,6 +128,7 @@ def verify_startup_license(parent: tk.Misc) -> bool:
         client = create_license_client()
         status = client.check()
     except Exception as exc:
+        LOGGER.exception("License startup check failed")
         messagebox.showerror(
             "Licence indisponible",
             f"Impossible d'initialiser la vérification de licence :\n{exc}",
@@ -118,5 +137,17 @@ def verify_startup_license(parent: tk.Misc) -> bool:
         return False
 
     if status.ok:
+        LOGGER.info(
+            "License startup check accepted: reason=%s offline=%s",
+            status.reason,
+            status.offline,
+        )
         return True
-    return _ask_for_key(parent, client, status)
+    LOGGER.info(
+        "License startup check requires activation: reason=%s offline=%s",
+        status.reason,
+        status.offline,
+    )
+    accepted = _ask_for_key(parent, client, status)
+    LOGGER.info("License startup decision after activation: accepted=%s", accepted)
+    return accepted
