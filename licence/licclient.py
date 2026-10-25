@@ -192,12 +192,17 @@ class LicenseClient:
         except (urllib.error.URLError, OSError, ValueError) as e:
             return None, e
 
-    def _unreachable(self) -> Status:
-        """Server could not give a trustworthy answer (down, no network, fake server)."""
+    def _unreachable(self, server_unavailable: bool = False) -> Status:
+        """Handle an unavailable server or an untrusted server response."""
+        if not server_unavailable and has_internet(self.probes):
+            LOGGER.warning(
+                "License server returned an untrusted response while internet is connected; "
+                "access denied"
+            )
+            return Status(False, "untrusted_server_response", offline=True)
         s = self._check_cached()
         if not s.ok and self.fail_open:
-            # No/invalid cached token, clock off, machine-id changed, grace or license
-            # date passed... none of that may lock anyone out while the server is gone.
+            # Allow fail-safe access when there is no network or the license server is down.
             return Status(True, "ok_fail_open", offline=True)
         return s
 
@@ -215,7 +220,7 @@ class LicenseClient:
                 type(err).__name__ if err is not None else "unknown error",
                 err,
             )
-            return self._unreachable()
+            return self._unreachable(server_unavailable=True)
         if not resp.get("ok"):
             # Only a denial signed by OUR server key counts. Anything else
             # (fake server, captive portal, hijacked domain) is treated as unreachable.
