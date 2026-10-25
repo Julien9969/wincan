@@ -11,7 +11,7 @@ from lib.buttons import click_modification_parametres
 from lib.caracteristique_dialog.caracteristique_collecteur import (
     get_identification_controls,
 )
-from lib.caracteristique_dialog.open_caracteristique import click_ok, open_regards_tab
+from lib.caracteristique_dialog.open_caracteristique import click_ok, open_collecteur_tab, open_regards_tab
 from lib.caracteristique_dialog.regards_visite import (
     get_arrive,
     get_depart,
@@ -168,7 +168,10 @@ def apply_troncons(
             log(logging.DEBUG, "Sens d'écoulement conservé (sens_ecoulement A)")
         dialog.set_focus()
 
-        sleep(2)  # Wait for the dialog to be ready for validation
+        open_collecteur_tab(dialog)
+        dialog.set_focus()
+
+        sleep(1)  # Wait for the dialog to be ready for validation
 
         click_ok(dialog)
         progress(row_number, f"Tronçon {row_number}/{len(troncons)} terminé")
