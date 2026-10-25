@@ -51,9 +51,10 @@ if __name__ == "__main__":
         with timed_step(f"Tronçon {index}: load collector identification"):
             identification = get_identification_controls(carac)
             identification.operator_name.set_edit_text("Kais Mougeot")
+            LOGGER.debug("Collector identification loaded")
 
         # list_child_windows(window)
-        # carac.set_focus()
+        carac.set_focus()
         with timed_step(f"Tronçon {index}: open Regards tab"):
             regards = open_regards_tab(carac)
 
