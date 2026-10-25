@@ -64,10 +64,10 @@ def _set_node_values(
         )
 
     node.combos[0].set_focus()
-    node.combos[0].set_edit_text(dimension_regard)
+    # node.combos[0].set_edit_text(dimension_regard)
     node.dim_regard.set_focus()
     node.dim_regard.set_edit_text(dimension_regard)
-    
+
     node.profondeur_ouvrage.set_focus()
     node.profondeur_ouvrage.set_edit_text(profondeur_ouvrage)
     node.profondeur_radier.set_focus()
