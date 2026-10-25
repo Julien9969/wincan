@@ -104,7 +104,7 @@ def apply_troncons(
 
     log(logging.INFO, f"Démarrage de l'automatisation ({len(troncons)} tronçon(s))")
     log(logging.INFO, "Connexion à Canalyse...")
-    app = connect_to_canalyse()
+    app = connect_to_canalyse(log_callback=log_callback)
     log(logging.INFO, "Connexion à Canalyse établie")
     log(logging.INFO, "Recherche de la fenêtre principale...")
     window = get_main_window(app)
@@ -166,12 +166,12 @@ def apply_troncons(
             log(logging.DEBUG, "Sens d'écoulement inversé (sens_ecoulement B)")
         else:
             log(logging.DEBUG, "Sens d'écoulement conservé (sens_ecoulement A)")
-        dialog.set_focus()
+        # dialog.set_focus()
 
-        open_collecteur_tab(dialog)
-        dialog.set_focus()
+        # open_collecteur_tab(dialog)
+        # dialog.set_focus()
 
-        sleep(1)  # Wait for the dialog to be ready for validation
+        # sleep(1)  # Wait for the dialog to be ready for validation
 
         click_ok(dialog)
         progress(row_number, f"Tronçon {row_number}/{len(troncons)} terminé")

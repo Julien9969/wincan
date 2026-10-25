@@ -11,10 +11,14 @@ CARACTERISTIQUE_WINDOW_NAME = r".*Caractéristiques du tronçon.*"
 LOGGER = logging.getLogger(__name__)
 
 
-def connect_to_canalyse():
+def connect_to_canalyse(log_callback=None):
     Timings.window_find_timeout = 5
+    if log_callback is not None:
+        log_callback("INFO", f"Connecting to Canalyse 2: {APP_PATH}")
     LOGGER.info("Connecting to Canalyse 2: %s", APP_PATH)
     app = Application(backend="uia").connect(path=APP_PATH, timeout=1)
+    if log_callback is not None:
+        log_callback("INFO", f"Connected to process(es): {app.process}")
     LOGGER.info("Connected to process(es): %s", app.process)
     return app
 
