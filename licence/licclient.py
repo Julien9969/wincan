@@ -26,6 +26,7 @@ Requires: pip install cryptography
 import base64
 import hashlib
 import json
+import logging
 import os
 import platform
 import socket
@@ -38,6 +39,9 @@ from pathlib import Path
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
@@ -206,6 +210,11 @@ class LicenseClient:
         # denial (user must activate); if it is down, nobody is blocked.
         resp, err = self._call_server(key or "")
         if resp is None:                      # no network / server down
+            LOGGER.warning(
+                "License server verification unavailable: %s: %s",
+                type(err).__name__ if err is not None else "unknown error",
+                err,
+            )
             return self._unreachable()
         if not resp.get("ok"):
             # Only a denial signed by OUR server key counts. Anything else
@@ -214,18 +223,28 @@ class LicenseClient:
             if (proof is None or proof.get("machine_id") != self.machine_id
                     or proof.get("product") != self.product
                     or abs(time.time() - proof.get("issued_at", 0)) > 600):
+                LOGGER.warning(
+                    "License server returned an untrusted denial: reason=%s",
+                    resp.get("reason", "unknown"),
+                )
                 return self._unreachable()
             try:
                 self.token_file.unlink()
             except OSError:
                 pass
+            LOGGER.info(
+                "License server denied verification: reason=%s",
+                proof.get("denied", "unknown"),
+            )
             return Status(False, proof["denied"] if key else "no_license")
         token = resp["token"]
         p = self._verify_token(token)
         if p is None:                          # wrong key / tampered response
+            LOGGER.warning("License server returned a token with an invalid signature")
             return Status(False, "bad_server_signature")
         self.token_file.write_text(token)
         os.chmod(self.token_file, 0o600)
+        LOGGER.info("License server verification accepted")
         return Status(True, "ok", expires_at=p["expires_at"], grace_until=p["grace_until"])
 
 
