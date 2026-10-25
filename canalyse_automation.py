@@ -64,17 +64,17 @@ def _set_node_values(
             ),
         )
 
-    node.combos[0].set_focus()
-    node.dim_regard.set_focus()
-    node.dim_regard.set_edit_text(dimension_regard)
-    node.dim_regard.type_keys("{TAB}")
-
-    node.profondeur_ouvrage.set_focus()
-    node.profondeur_ouvrage.set_edit_text(profondeur_ouvrage)
-    node.profondeur_radier.set_focus()
-    node.profondeur_radier.set_edit_text(profondeur_radier)
-    node.hauteur_total.set_focus()
-    node.hauteur_total.set_edit_text(hauteur_total)
+    for control, value in (
+        (node.dim_regard, dimension_regard),
+        (node.profondeur_ouvrage, profondeur_ouvrage),
+        (node.profondeur_radier, profondeur_radier),
+        (node.hauteur_total, hauteur_total),
+    ):
+        control.set_focus()
+        control.select()
+        control.type_keys("^a")
+        control.type_keys(value)
+        control.type_keys("{TAB}")
 
 
 def apply_troncons(
