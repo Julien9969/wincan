@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping, Sequence
 from collections.abc import Callable
+from time import sleep
 
 from lib.buttons import click_modification_parametres
 from lib.caracteristique_dialog.caracteristique_collecteur import (
@@ -166,6 +167,8 @@ def apply_troncons(
         else:
             log(logging.DEBUG, "Sens d'écoulement conservé (sens_ecoulement A)")
         dialog.set_focus()
+
+        sleep(2)  # Wait for the dialog to be ready for validation
 
         click_ok(dialog)
         progress(row_number, f"Tronçon {row_number}/{len(troncons)} terminé")

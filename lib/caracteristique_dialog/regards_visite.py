@@ -8,7 +8,6 @@ from pywinauto import WindowSpecification
 
 
 LOGGER = logging.getLogger(__name__)
-_PANE_CACHE: dict[int, dict[str, WindowSpecification]] = {}
 
 
 @dataclass(frozen=True)
@@ -45,12 +44,6 @@ def _items(parent: WindowSpecification, control_type: str):
 
 
 def _panes(parent: WindowSpecification):
-    cache_key = id(parent)
-    cached = _PANE_CACHE.get(cache_key)
-    if cached is not None:
-        LOGGER.debug("Using cached Regards pane mapping")
-        return cached
-
     LOGGER.debug("Searching Regards tab for named panes")
     panes = parent.descendants(control_type="Pane")
     LOGGER.debug("Found %d Regards pane(s)", len(panes))
@@ -76,7 +69,6 @@ def _panes(parent: WindowSpecification):
             "Could not find Regards pane(s): " + ", ".join(sorted(missing))
         )
     LOGGER.debug("Regards panes mapped: %s", ", ".join(named_panes))
-    _PANE_CACHE[cache_key] = named_panes
     return named_panes
 
 
