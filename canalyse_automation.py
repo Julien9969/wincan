@@ -30,24 +30,27 @@ ProgressCallback = Callable[[int, int, str], None]
 def _set_node_values(
     node,
     troncon: Mapping[str, object],
-    profondeur_radier_key: str,
+    side: str,
     log_callback: LogCallback | None = None,
 ) -> None:
-    dimension_regard = str(troncon.get("dimension_regard", ""))
-    profondeur_ouvrage = str(troncon.get("profondeur_ouvrage", ""))
-    profondeur_radier = str(
-        troncon.get(
-            profondeur_radier_key,
-            troncon.get("profondeur_radier", ""),
-        )
-    )
-    hauteur_total = str(troncon.get("hauteur_total", ""))
+    if side not in ("depart", "arrive"):
+        raise ValueError(f"Unknown node side: {side}")
+
+    dimension_regard = str(troncon.get(f"dimension_regard_{side}", ""))
+    profondeur_ouvrage = str(troncon.get(f"profondeur_ouvrage_{side}", ""))
+    profondeur_radier = str(troncon.get(f"profondeur_radier_{side}", ""))
+    hauteur_total = str(troncon.get(f"hauteur_total_{side}", ""))
+    if not profondeur_ouvrage:
+        profondeur_ouvrage = hauteur_total
+    elif not hauteur_total:
+        hauteur_total = profondeur_ouvrage
     message = (
-        "Filling regard values: dimension_regard=%r, profondeur_ouvrage=%r, "
+        "Filling %s regard values: dimension_regard=%r, profondeur_ouvrage=%r, "
         "profondeur_radier=%r, hauteur_total=%r"
     )
     LOGGER.debug(
         message,
+        side,
         dimension_regard,
         profondeur_ouvrage,
         profondeur_radier,
@@ -58,6 +61,7 @@ def _set_node_values(
             "DEBUG",
             message
             % (
+                side,
                 dimension_regard,
                 profondeur_ouvrage,
                 profondeur_radier,
@@ -189,10 +193,10 @@ def apply_troncons(
 
         regards = open_regards_tab(dialog)
         depart = get_depart(regards)
-        _set_node_values(depart, troncon, "profondeur_depart", log_callback)
+        _set_node_values(depart, troncon, "depart", log_callback)
         log(logging.DEBUG, "Valeurs renseignées sur le regard de départ")
         arrive = get_arrive(regards)
-        _set_node_values(arrive, troncon, "profondeur_arrivee", log_callback)
+        _set_node_values(arrive, troncon, "arrive", log_callback)
         log(logging.DEBUG, "Valeurs renseignées sur le regard d'arrivée")
 
         flow_direction = str(

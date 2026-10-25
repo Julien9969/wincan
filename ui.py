@@ -90,12 +90,15 @@ DIALOG_SECTIONS = [
         ("depart", "Nœud de départ *:", "regards"),
         ("arrivee", "Nœud d'arrivée *:", "regards"),
         ("sens_ecoulement", "Sens d'écoulement :", "direction"),
-        ("profondeur_depart", "Profondeur radier départ (m) :", "text"),
-        ("profondeur_arrivee", "Profondeur radier arrivée (m) :", "text"),
-        ("dimension_regard", "Dimension du regard :", "text"),
-        ("profondeur_ouvrage", "Profondeur de l'ouvrage (m) :", "text"),
+        ("profondeur_radier_depart", "Profondeur radier départ (m) :", "text"),
+        ("profondeur_radier_arrive", "Profondeur radier arrivée (m) :", "text"),
+        ("dimension_regard_depart", "Dimension du regard départ :", "text"),
+        ("dimension_regard_arrive", "Dimension du regard arrivée :", "text"),
+        ("profondeur_ouvrage_depart", "Profondeur de l'ouvrage départ (m) :", "text"),
+        ("profondeur_ouvrage_arrive", "Profondeur de l'ouvrage arrivée (m) :", "text"),
         # ("profondeur_radier", "Profondeur du radier (m) :", "text"),
-        ("hauteur_total", "Hauteur totale :", "text"),
+        ("hauteur_total_depart", "Hauteur totale départ :", "text"),
+        ("hauteur_total_arrive", "Hauteur totale arrivée :", "text"),
     ]),
     ("Adresse / Situation", [
         ("emplacement", "Emplacement / Conditions :", "code"),
@@ -121,10 +124,12 @@ DIALOG_SECTIONS = [
 # stored in the XML -- they are derived from the Tronçons' depart/arrivee.
 TRONCON_XML_ATTR_ORDER = (
     "depart", "arrivee", "sens_ecoulement", "hauteur_diametre",
-    "profondeur_depart", "profondeur_arrivee", "emplacement",
+    "profondeur_radier_depart", "profondeur_radier_arrive", "emplacement",
     "usage_reseau", "type_ecoulement", "etat_reseau", "statut_reseau",
-    "forme", "materiau", "longueur", "dimension_regard",
-    "profondeur_ouvrage", "profondeur_radier", "hauteur_total",
+    "forme", "materiau", "longueur", "dimension_regard_depart",
+    "dimension_regard_arrive", "profondeur_ouvrage_depart",
+    "profondeur_ouvrage_arrive", "hauteur_total_depart",
+    "hauteur_total_arrive",
     "nom", "curage",
 )
 
@@ -264,6 +269,16 @@ class TronconDialog(tk.Toplevel):
                 result[key] = _display_to_code(var.get())
             else:
                 result[key] = var.get().strip()
+
+        for side in ("depart", "arrive"):
+            ouvrage_key = f"profondeur_ouvrage_{side}"
+            hauteur_key = f"hauteur_total_{side}"
+            ouvrage = result[ouvrage_key]
+            hauteur = result[hauteur_key]
+            if not ouvrage:
+                result[ouvrage_key] = hauteur
+            elif not hauteur:
+                result[hauteur_key] = ouvrage
 
         self.result = result
         self.destroy()

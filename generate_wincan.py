@@ -11,7 +11,11 @@ Source XML shape:
 <Project commune="..." adresse="..." operateur="Kais Mougeot" date="YYYY-MM-DD">
   <Troncons>
     <Troncon depart="G1" arrivee="RB1" sens_ecoulement="A"
-             hauteur_diametre="200" profondeur_depart="" profondeur_arrivee=""
+             hauteur_diametre="200" profondeur_radier_depart=""
+             profondeur_radier_arrive=""
+             dimension_regard_depart="" dimension_regard_arrive=""
+             profondeur_ouvrage_depart="" profondeur_ouvrage_arrive=""
+             hauteur_total_depart="" hauteur_total_arrive=""
              emplacement="H" usage_reseau="A" type_ecoulement="A"
              etat_reseau="A" statut_reseau="A" forme="A" materiau="A"
              nom="Tronçon n° 1" curage="0"/>
@@ -175,12 +179,14 @@ DEFAULT_TRONCON = {
     "materiau": "AX",
     "longueur": "",
     "sens_ecoulement": "A",
-    "profondeur_depart": "",
-    "profondeur_arrivee": "",
-    "dimension_regard": "",
-    "profondeur_ouvrage": "",
-    "profondeur_radier": "",
-    "hauteur_total": "",
+    "dimension_regard_arrive": "",
+    "dimension_regard_depart": "",
+    "profondeur_ouvrage_arrive": "",
+    "profondeur_ouvrage_depart": "",
+    "profondeur_radier_arrive": "",
+    "hauteur_total_arrive": "",
+    "profondeur_radier_depart": "",
+    "hauteur_total_depart": "",
 }
 
 # ---------------------------------------------------------------------------
@@ -311,12 +317,14 @@ def parse_source(xml_path):
                     "sens_ecoulement",
                     t.get("direction", DEFAULT_TRONCON["sens_ecoulement"]),
                 ),
-                "profondeur_depart": t.get("profondeur_depart", ""),
-                "profondeur_arrivee": t.get("profondeur_arrivee", ""),
-                "dimension_regard": t.get("dimension_regard", ""),
-                "profondeur_ouvrage": t.get("profondeur_ouvrage", ""),
-                "profondeur_radier": t.get("profondeur_radier", ""),
-                "hauteur_total": t.get("hauteur_total", ""),
+                "dimension_regard_arrive": t.get("dimension_regard_arrive", ""),
+                "dimension_regard_depart": t.get("dimension_regard_depart", ""),
+                "profondeur_ouvrage_arrive": t.get("profondeur_ouvrage_arrive", ""),
+                "profondeur_ouvrage_depart": t.get("profondeur_ouvrage_depart", ""),
+                "profondeur_radier_arrive": t.get("profondeur_radier_arrive", ""),
+                "hauteur_total_arrive": t.get("hauteur_total_arrive", ""),
+                "profondeur_radier_depart": t.get("profondeur_radier_depart", ""),
+                "hauteur_total_depart": t.get("hauteur_total_depart", ""),
                 "longueur": t.get("longueur", DEFAULT_TRONCON["longueur"]),
             })
             troncons.append(entry)
@@ -357,7 +365,8 @@ def build_file(project, regards, troncons):
         )
         out += build_b03(
             t["materiau"], t["hauteur_diametre"], t["forme"],
-            t["profondeur_depart"], t["profondeur_arrivee"],
+            t["profondeur_radier_depart"],
+            t["profondeur_radier_arrive"],
             t["usage_reseau"], t["type_ecoulement"], t["etat_reseau"],
         )
         out += build_b04()
