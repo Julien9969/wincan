@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Mapping, Sequence
 from collections.abc import Callable
 from time import sleep
@@ -27,6 +28,30 @@ LogCallback = Callable[[str, str], None]
 ProgressCallback = Callable[[int, int, str], None]
 
 
+def _format_dimension_regard(value: object) -> str:
+    """Format a circular or rectangular regard dimension for Canalyse."""
+    dimension = str(value).strip()
+    if not dimension:
+        return ""
+
+    circular = re.fullmatch(r"Ø?\s*(\d+(?:[.,]\d+)?)", dimension, re.IGNORECASE)
+    if circular:
+        return f"Ø{circular.group(1)}"
+
+    rectangular = re.fullmatch(
+        r"(\d+(?:[.,]\d+)?)\s*[x×]\s*(\d+(?:[.,]\d+)?)",
+        dimension,
+        re.IGNORECASE,
+    )
+    if rectangular:
+        return f"{rectangular.group(1)} x {rectangular.group(2)}"
+
+    raise ValueError(
+        f"Dimension de regard invalide {dimension!r} : "
+        "utilisez une valeur simple (ex. 300) ou deux valeurs séparées par x (ex. 1000x1000)"
+    )
+
+
 def _set_node_values(
     node,
     troncon: Mapping[str, object],
@@ -36,7 +61,9 @@ def _set_node_values(
     if side not in ("depart", "arrive"):
         raise ValueError(f"Unknown node side: {side}")
 
-    dimension_regard = str(troncon.get(f"dimension_regard_{side}", ""))
+    dimension_regard = _format_dimension_regard(
+        troncon.get(f"dimension_regard_{side}", "")
+    )
     profondeur_ouvrage = str(troncon.get(f"profondeur_ouvrage_{side}", ""))
     profondeur_radier = str(troncon.get(f"profondeur_radier_{side}", ""))
     hauteur_total = str(troncon.get(f"hauteur_total_{side}", ""))

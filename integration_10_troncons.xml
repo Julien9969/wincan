@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project commune="Beaupont" adresse="Rue de l'Integration" operateur="Kais Mougeot" date="2026-10-25">
+  <Troncons>
+    <!-- Circular dimensions, both ouvrage and hauteur values set. -->
+    <Troncon depart="R01" arrivee="R02" sens_ecoulement="A"
+             hauteur_diametre="200"
+             profondeur_radier_depart="1.20" profondeur_radier_arrive="1.35"
+             dimension_regard_depart="300" dimension_regard_arrive="400"
+             profondeur_ouvrage_depart="2.10" profondeur_ouvrage_arrive="2.40"
+             hauteur_total_depart="2.80" hauteur_total_arrive="3.10"
+             emplacement="A" usage_reseau="A" type_ecoulement="A"
+             etat_reseau="A" statut_reseau="A" forme="A" materiau="AX"
+             longueur="25.5" nom="Tronçon n° 1" curage="1"/>
+
+    <!-- Rectangular dimensions without spaces around x. -->
+    <Troncon depart="R02" arrivee="R03" sens_ecoulement="B"
+             hauteur_diametre="300"
+             profondeur_radier_depart="1.40" profondeur_radier_arrive="1.55"
+             dimension_regard_depart="1000x1000" dimension_regard_arrive="800x600"
+             profondeur_ouvrage_depart="2.50" profondeur_ouvrage_arrive="2.60"
+             hauteur_total_depart="3.00" hauteur_total_arrive="3.20"
+             emplacement="B" usage_reseau="B" type_ecoulement="A"
+             etat_reseau="B" statut_reseau="A" forme="B" materiau="AG"
+             longueur="40" nom="Tronçon n° 2" curage="0"/>
+
+    <!-- Rectangular dimensions with spaces around x. -->
+    <Troncon depart="R03" arrivee="R04" sens_ecoulement="A"
+             hauteur_diametre="400"
+             profondeur_radier_depart="1.60" profondeur_radier_arrive="1.75"
+             dimension_regard_depart="1000 x 1000" dimension_regard_arrive="1200 x 800"
+             profondeur_ouvrage_depart="2.70" profondeur_ouvrage_arrive="2.90"
+             hauteur_total_depart="3.40" hauteur_total_arrive="3.60"
+             emplacement="C" usage_reseau="C" type_ecoulement="B"
+             etat_reseau="A" statut_reseau="B" forme="C" materiau="AB"
+             longueur="55.75" nom="Tronçon n° 3" curage="1"/>
+
+    <!-- Empty hauteur_total values exercise the fallback from ouvrage. -->
+    <Troncon depart="R04" arrivee="R05" sens_ecoulement="B"
+             hauteur_diametre="250"
+             profondeur_radier_depart="1.80" profondeur_radier_arrive="1.95"
+             dimension_regard_depart="500" dimension_regard_arrive="500"
+             profondeur_ouvrage_depart="2.90" profondeur_ouvrage_arrive="3.10"
+             hauteur_total_depart="" hauteur_total_arrive=""
+             emplacement="D" usage_reseau="D" type_ecoulement="A"
+             etat_reseau="B" statut_reseau="C" forme="D" materiau="AE"
+             longueur="60.5" nom="Tronçon n° 4" curage="0"/>
+
+    <!-- Empty profondeur_ouvrage values exercise the fallback from hauteur. -->
+    <Troncon depart="R05" arrivee="R06" sens_ecoulement="A"
+             hauteur_diametre="500"
+             profondeur_radier_depart="2.00" profondeur_radier_arrive="2.15"
+             dimension_regard_depart="600" dimension_regard_arrive="700"
+             profondeur_ouvrage_depart="" profondeur_ouvrage_arrive=""
+             hauteur_total_depart="3.50" hauteur_total_arrive="3.80"
+             emplacement="E" usage_reseau="E" type_ecoulement="C"
+             etat_reseau="A" statut_reseau="" forme="E" materiau="AU"
+             longueur="72" nom="Tronçon n° 5" curage="1"/>
+
+    <!-- One empty dimension and one rectangular dimension. -->
+    <Troncon depart="R06" arrivee="R07" sens_ecoulement="B"
+             hauteur_diametre=""
+             profondeur_radier_depart="" profondeur_radier_arrive="2.30"
+             dimension_regard_depart="" dimension_regard_arrive="900x700"
+             profondeur_ouvrage_depart="" profondeur_ouvrage_arrive="3.90"
+             hauteur_total_depart="" hauteur_total_arrive=""
+             emplacement="F" usage_reseau="F" type_ecoulement="A"
+             etat_reseau="B" statut_reseau="A" forme="F" materiau="AV"
+             longueur="" nom="Tronçon n° 6" curage="0"/>
+
+    <!-- Decimal circular dimension and independent node values. -->
+    <Troncon depart="R07" arrivee="R08" sens_ecoulement="A"
+             hauteur_diametre="315"
+             profondeur_radier_depart="2.40" profondeur_radier_arrive="2.55"
+             dimension_regard_depart="800.5" dimension_regard_arrive="900"
+             profondeur_ouvrage_depart="3.70" profondeur_ouvrage_arrive="4.00"
+             hauteur_total_depart="4.20" hauteur_total_arrive="4.50"
+             emplacement="G" usage_reseau="Z" type_ecoulement="A"
+             etat_reseau="A" statut_reseau="A" forme="Z" materiau="AZ"
+             longueur="88.25" nom="Tronçon n° 7" curage="1"/>
+
+    <!-- Unicode multiplication sign is accepted by automation formatting. -->
+    <Troncon depart="R08" arrivee="R09" sens_ecoulement="B"
+             hauteur_diametre="600"
+             profondeur_radier_depart="2.70" profondeur_radier_arrive="2.85"
+             dimension_regard_depart="1000×1000" dimension_regard_arrive="300"
+             profondeur_ouvrage_depart="4.10" profondeur_ouvrage_arrive="4.30"
+             hauteur_total_depart="4.80" hauteur_total_arrive="5.00"
+             emplacement="H" usage_reseau="A" type_ecoulement="A"
+             etat_reseau="B" statut_reseau="B" forme="A" materiau="AH"
+             longueur="95" nom="Tronçon n° 8" curage="0"/>
+
+    <!-- Both node dimensions are empty; all regard text values are empty. -->
+    <Troncon depart="R09" arrivee="R10" sens_ecoulement="A"
+             hauteur_diametre="700"
+             profondeur_radier_depart="" profondeur_radier_arrive=""
+             dimension_regard_depart="" dimension_regard_arrive=""
+             profondeur_ouvrage_depart="" profondeur_ouvrage_arrive=""
+             hauteur_total_depart="" hauteur_total_arrive=""
+             emplacement="I" usage_reseau="B" type_ecoulement="B"
+             etat_reseau="A" statut_reseau="C" forme="B" materiau="AG"
+             longueur="110.0" nom="Tronçon n° 9" curage="1"/>
+
+    <!-- Final mixed case with different node dimensions and values. -->
+    <Troncon depart="R10" arrivee="R11" sens_ecoulement="B"
+             hauteur_diametre="800"
+             profondeur_radier_depart="3.20" profondeur_radier_arrive="3.45"
+             dimension_regard_depart="1200 x 900" dimension_regard_arrive="1000"
+             profondeur_ouvrage_depart="4.60" profondeur_ouvrage_arrive=""
+             hauteur_total_depart="" hauteur_total_arrive="5.20"
+             emplacement="J" usage_reseau="C" type_ecoulement="A"
+             etat_reseau="B" statut_reseau="A" forme="C" materiau="AP"
+             longueur="125.5" nom="Tronçon n° 10" curage="0"/>
+  </Troncons>
+</Project>

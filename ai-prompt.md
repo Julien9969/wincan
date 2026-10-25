@@ -9,7 +9,10 @@ commentaire ni explication.
 <Project commune="..." adresse="..." operateur="Kais Mougeot" date="AAAA-MM-JJ">
   <Troncons>
     <Troncon depart="..." arrivee="..." direction="A" hauteur_diametre=""
-             profondeur_depart="" profondeur_arrivee="" emplacement="A"
+             profondeur_radier_depart="" profondeur_radier_arrive=""
+             dimension_regard_depart="" dimension_regard_arrive=""
+             profondeur_ouvrage_depart="" profondeur_ouvrage_arrive=""
+             hauteur_total_depart="" hauteur_total_arrive="" emplacement="A"
              usage_reseau="A" type_ecoulement="A" etat_reseau="A"
              statut_reseau="A" forme="A" materiau="AX" longueur=""
              nom="Tronçon n° 1" curage="1"/>
@@ -53,8 +56,16 @@ commentaire ni explication.
 
 - `hauteur_diametre` : hauteur ou diamètre en millimètres (nombre).
 - `longueur` : longueur mesurée en mètres (nombre décimal).
-- `profondeur_depart` / `profondeur_arrivee` : profondeur du radier en mètres
-  (nombre décimal) au regard de départ / d'arrivée.
+- `profondeur_radier_depart` / `profondeur_radier_arrive` : profondeur du radier
+  en mètres (nombre décimal) au regard de départ / d'arrivée.
+- `dimension_regard_depart` / `dimension_regard_arrive` : dimension du regard
+  de départ / d'arrivée, sous forme d'une valeur simple (ex. `300`) ou de
+  deux dimensions séparées par `x` (ex. `1000x1000`).
+- `profondeur_ouvrage_depart` / `profondeur_ouvrage_arrive` : profondeur de
+  l'ouvrage au départ / à l'arrivée.
+- `hauteur_total_depart` / `hauteur_total_arrive` : hauteur totale au départ /
+  à l'arrivée. Si l'un des deux champs d'un même regard est vide, il reprend
+  la valeur de l'autre champ.
 
 ## Exemple
 
@@ -68,7 +79,10 @@ XML attendu :
 <Project commune="Beaupont" adresse="Route de l'Orphelinat" operateur="Kais Mougeot" date="2026-08-14">
   <Troncons>
     <Troncon depart="R12" arrivee="R13" direction="A" hauteur_diametre="200"
-             profondeur_depart="" profondeur_arrivee="" emplacement="Z"
+             profondeur_radier_depart="" profondeur_radier_arrive=""
+             dimension_regard_depart="" dimension_regard_arrive=""
+             profondeur_ouvrage_depart="" profondeur_ouvrage_arrive=""
+             hauteur_total_depart="" hauteur_total_arrive="" emplacement="Z"
              usage_reseau="D" type_ecoulement="A" etat_reseau="B"
              statut_reseau="C" forme="C" materiau="AX" longueur="777"
              nom="Tronçon n° 1" curage="1"/>
