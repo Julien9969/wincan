@@ -577,11 +577,13 @@ class App(tk.Tk):
         dialog.attributes("-topmost", True)
         dialog.lift()
         dialog.update_idletasks()
-        screen_right = dialog.winfo_screenwidth()
-        margin = 12
+        screen_left = dialog.winfo_vrootx()
+        screen_top = dialog.winfo_vrooty()
+        screen_width = dialog.winfo_vrootwidth()
         dialog.geometry(
             f"{dialog.winfo_width()}x{dialog.winfo_height()}"
-            f"+{screen_right - dialog.winfo_width() - margin}+{margin}"
+            f"+{max(screen_left, screen_left + screen_width - dialog.winfo_width())}"
+            f"+{screen_top}"
         )
 
         status_var = tk.StringVar(value="Démarrage...")
