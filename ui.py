@@ -571,10 +571,18 @@ class App(tk.Tk):
         dialog = tk.Toplevel(self)
         dialog.title("Automatisation Canalyse")
         dialog.resizable(True, True)
-        dialog.minsize(620, 360)
+        dialog.geometry("480x280")
+        dialog.minsize(420, 240)
         dialog.transient(self)
         dialog.attributes("-topmost", True)
         dialog.lift()
+        dialog.update_idletasks()
+        screen_right = dialog.winfo_screenwidth()
+        margin = 12
+        dialog.geometry(
+            f"{dialog.winfo_width()}x{dialog.winfo_height()}"
+            f"+{screen_right - dialog.winfo_width() - margin}+{margin}"
+        )
 
         status_var = tk.StringVar(value="Démarrage...")
         ttk.Label(dialog, textvariable=status_var).pack(fill="x", padx=10, pady=(10, 4))
@@ -584,19 +592,6 @@ class App(tk.Tk):
         progress.pack(fill="x", padx=10, pady=(4, 10))
         button_frame = ttk.Frame(dialog)
         button_frame.pack(fill="x", padx=10, pady=(0, 10))
-        cancel_event = threading.Event()
-
-        def request_cancel():
-            cancel_event.set()
-            cancel_button.configure(state="disabled")
-            status_var.set("Annulation demandée...")
-
-        cancel_button = ttk.Button(
-            button_frame,
-            text="Annuler",
-            command=request_cancel,
-        )
-        cancel_button.pack(side="left")
         close_button = ttk.Button(
             button_frame,
             text="Fermer",
@@ -622,7 +617,6 @@ class App(tk.Tk):
                     debug=debug_enabled,
                     log_callback=append_log,
                     progress_callback=update_progress,
-                    cancel_event=cancel_event,
                 )
             except Exception as exc:
                 events.put(("error", exc))
@@ -646,7 +640,6 @@ class App(tk.Tk):
                         status_var.set(message)
                     elif event[0] == "error":
                         self.automation_button.configure(state="normal")
-                        cancel_button.configure(state="disabled")
                         close_button.configure(state="normal")
                         status_var.set("Échec de l'automatisation")
                         messagebox.showerror(
@@ -656,21 +649,13 @@ class App(tk.Tk):
                         )
                     elif event[0] == "done":
                         self.automation_button.configure(state="normal")
-                        cancel_button.configure(state="disabled")
                         close_button.configure(state="normal")
-                        if cancel_event.is_set():
-                            status_var.set("Automatisation annulée")
-                            log_text.configure(state="normal")
-                            log_text.insert("end", "[INFO] Traitement arrêté par l'utilisateur\n")
-                            log_text.see("end")
-                            log_text.configure(state="disabled")
-                        else:
-                            status_var.set("Automatisation terminée")
-                            messagebox.showinfo(
-                                "Terminé",
-                                f"Paramètres appliqués à {len(self.troncons)} tronçon(s) dans Canalyse.",
-                                parent=dialog,
-                            )
+                        status_var.set("Automatisation terminée")
+                        messagebox.showinfo(
+                            "Terminé",
+                            f"Paramètres appliqués à {len(self.troncons)} tronçon(s) dans Canalyse.",
+                            parent=dialog,
+                        )
             except queue.Empty:
                 pass
             if close_button["state"] == "disabled":

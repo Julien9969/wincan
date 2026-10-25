@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from collections.abc import Mapping, Sequence
 from collections.abc import Callable
-from threading import Event
 
 from lib.buttons import click_modification_parametres
 from lib.caracteristique_dialog.caracteristique_collecteur import (
@@ -40,7 +39,6 @@ def apply_troncons(
     debug: bool = False,
     log_callback: LogCallback | None = None,
     progress_callback: ProgressCallback | None = None,
-    cancel_event: Event | None = None,
 ) -> None:
     """Apply every loaded configuration entry to the corresponding Canalyse row.
 
@@ -51,62 +49,63 @@ def apply_troncons(
     if not troncons:
         raise ValueError("Aucun tronçon à appliquer")
 
-    def log(level: str, message: str) -> None:
-        getattr(LOGGER, level)(message)
-        if log_callback is not None and (debug or level != "debug"):
-            log_callback(level.upper(), message)
+    def log(level: int, message: str) -> None:
+        LOGGER.log(level, message)
+        if log_callback is not None and (debug or level != logging.DEBUG):
+            log_callback(logging.getLevelName(level), message)
 
     def progress(index: int, message: str) -> None:
         if progress_callback is not None:
             progress_callback(index, len(troncons), message)
 
-    log("info", f"Démarrage de l'automatisation ({len(troncons)} tronçon(s))")
+    log(logging.INFO, f"Démarrage de l'automatisation ({len(troncons)} tronçon(s))")
     app = connect_to_canalyse()
     window = get_main_window(app)
     window.set_focus()
-    
-    available = get_list_troncons(window)
-    log("debug", f"Canalyse expose {len(available)} tronçon(s)")
-    if len(available) < len(troncons):
+
+    troncon_count = len(get_list_troncons(window))
+
+    log(logging.DEBUG, f"Canalyse expose {troncon_count} tronçon(s)")
+    if troncon_count < len(troncons):
         raise RuntimeError(
-            f"Canalyse expose {len(available)} tronçon(s), "
+            f"Canalyse expose {troncon_count} tronçon(s), "
             f"mais {len(troncons)} configuration(s) doivent être appliquées"
         )
 
-    for index, troncon in enumerate(troncons):
-        if cancel_event is not None and cancel_event.is_set():
-            log("info", "Automatisation annulée par l'utilisateur")
-            return
+    for index in range(1, troncon_count + 1):
         progress(index, f"Tronçon {index + 1}/{len(troncons)}")
-        log("info", f"Traitement du tronçon {index + 1}/{len(troncons)}")
+        log(logging.INFO, f"Traitement du tronçon {index + 1}/{len(troncons)}")
+        
         current = get_list_troncons(window)
+        troncon = troncons[index-1] 
+        
         # Canalyse names rows from 1, while the Python list is zero-based.
         select_troncon(window, current, index)
-        log("debug", f"Tronçon sélectionné : {troncon.get('nom', index + 1)}")
-        log("debug", "Ouverture de la fenêtre des caractéristiques")
+        log(logging.DEBUG, f"Tronçon sélectionné : {troncon.get('nom', index + 1)}")
+        log(logging.DEBUG, "Ouverture de la fenêtre des caractéristiques")
         click_modification_parametres(window)
-        log("debug", "Bouton des caractéristiques activé; recherche de la fenêtre")
-        dialog = get_caracteristique_window(app)
+        log(logging.DEBUG, "Bouton des caractéristiques activé; recherche de la fenêtre")
+        dialog = get_caracteristique_window(window)
         dialog.set_focus()
 
-        log("debug", "Fenêtre des caractéristiques trouvée")
+        log(logging.DEBUG, "Fenêtre des caractéristiques trouvée")
 
         identification = get_identification_controls(dialog)
         identification.operator_name.set_edit_text(operator_name)
-        log("debug", f"Opérateur renseigné : {operator_name}")
+        log(logging.DEBUG, f"Opérateur renseigné : {operator_name}")
 
         regards = open_regards_tab(dialog)
         _set_common_node_values(get_depart(regards), troncon)
         _set_common_node_values(get_arrive(regards), troncon)
-        log("debug", "Valeurs communes renseignées sur les deux regards")
+        log(logging.DEBUG, "Valeurs communes renseignées sur les deux regards")
 
         if troncon.get("direction", "A") == "B":
             get_sens_ecoulement(regards).pane.click_input()
-            log("debug", "Sens d'écoulement inversé (direction B)")
+            log(logging.DEBUG, "Sens d'écoulement inversé (direction B)")
         else:
-            log("debug", "Sens d'écoulement conservé (direction A)")
+            log(logging.DEBUG, "Sens d'écoulement conservé (direction A)")
 
         click_ok(dialog)
         progress(index + 1, f"Tronçon {index + 1}/{len(troncons)} terminé")
 
-    log("info", "Automatisation terminée")
+    log(logging.INFO, "Automatisation terminée")
