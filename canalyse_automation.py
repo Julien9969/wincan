@@ -9,6 +9,7 @@ from time import sleep
 
 from lib.buttons import click_modification_parametres
 from lib.caracteristique_dialog.caracteristique_collecteur import (
+    get_canalisation_controls,
     get_identification_controls,
 )
 from lib.caracteristique_dialog.open_caracteristique import click_ok, open_collecteur_tab, open_regards_tab
@@ -76,6 +77,38 @@ def _set_node_values(
         control.type_keys(value)
         control.type_keys("{TAB}")
 
+def set_canalisation_values(
+    controls,
+    troncon: Mapping[str, object],
+    log_callback: LogCallback | None = None,
+) -> None:
+    """Set the values of the canalisation controls based on the troncon mapping."""
+    # STATUT_RESEAU_CODES = {"": "Non précisé", "A": "En service", "B": "Hors service", "C": "Désaffecté"}
+    # ETAT_RESEAU_CODES = {"A": "Neuf", "B": "Ancien"}
+    # set statut_reseau move up in the combobox then down 0 for in_service, 1 for out_of_service, 2 for desafected 
+    
+    value = str(troncon.get("statut_reseau", ""))
+    control = controls.statut_reseau
+    control.type_keys("{UP}")
+    control.type_keys("{UP}")
+
+    if value == "B":
+        control.type_keys("{DOWN}")
+    elif value == "C":
+        control.type_keys("{DOWN}")
+        control.type_keys("{DOWN}")
+    control.type_keys("{TAB}")
+
+    # set etat_reseau move up in the combobox then down 0 for new, 1 for old
+    value = str(troncon.get("etat_reseau", ""))
+    control = controls.etat_reseau
+    control.type_keys("{UP}")
+
+    if value == "B":
+        control.type_keys("{DOWN}")
+
+    control.type_keys("{TAB}")
+    
 
 def apply_troncons(
     troncons: Sequence[Mapping[str, object]],
@@ -149,6 +182,10 @@ def apply_troncons(
         identification = get_identification_controls(dialog)
         identification.operator_name.set_edit_text(operator_name)
         log(logging.DEBUG, f"Opérateur renseigné : {operator_name}")
+
+        cara_cana = get_canalisation_controls(dialog)
+
+        set_canalisation_values(cara_cana, troncon, log_callback=log_callback)
 
         regards = open_regards_tab(dialog)
         depart = get_depart(regards)

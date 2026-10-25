@@ -63,6 +63,12 @@ class FieldSectionControls:
     combos: tuple[WindowSpecification, ...]
 
 
+@dataclass(frozen=True)
+class CanalisationControls(FieldSectionControls):
+    statut_reseau: WindowSpecification
+    etat_reseau: WindowSpecification
+
+
 def _items(pane: WindowSpecification, control_type: str):
     LOGGER.debug("Searching collector pane for %s controls", control_type)
     controls = pane.descendants(control_type=control_type)
@@ -137,7 +143,7 @@ def get_adresse_controls(pane: WindowSpecification) -> AdresseControls:
     return AdresseControls(pane=adresse, emplacement=combos[0])
 
 
-def get_canalisation_controls(pane: WindowSpecification) -> FieldSectionControls:
+def get_canalisation_controls(pane: WindowSpecification) -> CanalisationControls:
     LOGGER.info("Loading collector canalisation controls")
     section = _pane(pane, "Caractéristiques de la canalisation")
     edits = tuple(_items(section, "Edit"))
@@ -147,10 +153,20 @@ def get_canalisation_controls(pane: WindowSpecification) -> FieldSectionControls
         len(edits),
         len(combos),
     )
-    return FieldSectionControls(
+    if len(combos) < 2:
+        LOGGER.error(
+            "Canalisation pane has %d combo box(es); expected at least 2",
+            len(combos),
+        )
+        raise RuntimeError(
+            "Canalisation pane does not expose the expected combo boxes"
+        )
+    return CanalisationControls(
         pane=section,
         edits=edits,
         combos=combos,
+        statut_reseau=combos[0],
+        etat_reseau=combos[1],
     )
 
 
