@@ -573,6 +573,8 @@ class App(tk.Tk):
         dialog.resizable(True, True)
         dialog.minsize(620, 360)
         dialog.transient(self)
+        dialog.attributes("-topmost", True)
+        dialog.lift()
 
         status_var = tk.StringVar(value="Démarrage...")
         ttk.Label(dialog, textvariable=status_var).pack(fill="x", padx=10, pady=(10, 4))

@@ -63,6 +63,8 @@ def apply_troncons(
     log("info", f"Démarrage de l'automatisation ({len(troncons)} tronçon(s))")
     app = connect_to_canalyse()
     window = get_main_window(app)
+    window.set_focus()
+    
     available = get_list_troncons(window)
     log("debug", f"Canalyse expose {len(available)} tronçon(s)")
     if len(available) < len(troncons):
@@ -85,6 +87,8 @@ def apply_troncons(
         click_modification_parametres(window)
         log("debug", "Bouton des caractéristiques activé; recherche de la fenêtre")
         dialog = get_caracteristique_window(app)
+        dialog.set_focus()
+
         log("debug", "Fenêtre des caractéristiques trouvée")
 
         identification = get_identification_controls(dialog)
