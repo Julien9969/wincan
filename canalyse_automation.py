@@ -72,7 +72,6 @@ def apply_troncons(
     troncons: Sequence[Mapping[str, object]],
     operator_name: str,
     *,
-    debug: bool = False,
     log_callback: LogCallback | None = None,
     progress_callback: ProgressCallback | None = None,
 ) -> None:
