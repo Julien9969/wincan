@@ -82,7 +82,8 @@ commentaire ni explication.
   Le symbole `×` est également accepté. Dans l'automatisation, une valeur
   simple est affichée avec le symbole `Ø` devant (ex. `Ø300`) et une
   dimension rectangulaire est affichée avec des espaces autour du `x`
-  (ex. `1000 x 1000`).
+  (ex. `1000 x 1000`). Une description libre est également acceptée et
+  conservée telle quelle (ex. `piquage enterrer`).
 - `profondeur_ouvrage_depart` / `profondeur_ouvrage_arrive` : profondeur de
   l'ouvrage au départ / à l'arrivée.
 - `hauteur_total_depart` / `hauteur_total_arrive` : hauteur totale au départ /

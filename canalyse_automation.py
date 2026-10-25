@@ -29,7 +29,7 @@ ProgressCallback = Callable[[int, int, str], None]
 
 
 def _format_dimension_regard(value: object) -> str:
-    """Format a circular or rectangular regard dimension for Canalyse."""
+    """Format known regard dimensions and preserve free-form descriptions."""
     dimension = str(value).strip()
     if not dimension:
         return ""
@@ -46,10 +46,7 @@ def _format_dimension_regard(value: object) -> str:
     if rectangular:
         return f"{rectangular.group(1)} x {rectangular.group(2)}"
 
-    raise ValueError(
-        f"Dimension de regard invalide {dimension!r} : "
-        "utilisez une valeur simple (ex. 300) ou deux valeurs séparées par x (ex. 1000x1000)"
-    )
+    return dimension
 
 
 def _set_node_values(
