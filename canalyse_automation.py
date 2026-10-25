@@ -142,10 +142,12 @@ def apply_troncons(
             troncon.get("direction", "A"),
         )
         if flow_direction == "B":
-            get_sens_ecoulement(regards).pane.click_input()
+            sens_ecoulement = get_sens_ecoulement(regards)
+            sens_ecoulement.pane.click_input()
             log(logging.DEBUG, "Sens d'écoulement inversé (sens_ecoulement B)")
         else:
             log(logging.DEBUG, "Sens d'écoulement conservé (sens_ecoulement A)")
+        dialog.set_focus()
 
         click_ok(dialog)
         progress(row_number, f"Tronçon {row_number}/{len(troncons)} terminé")

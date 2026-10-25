@@ -626,6 +626,7 @@ class App(tk.Tk):
                 apply_troncons(
                     self.troncons,
                     self.project.get("operateur", DEFAULT_OPERATEUR),
+                    log_callback=append_log,
                     progress_callback=update_progress,
                 )
             except Exception as exc:
