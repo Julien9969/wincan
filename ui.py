@@ -558,10 +558,6 @@ class App(tk.Tk):
 
         from canalyse_automation import apply_troncons
 
-        debug_enabled = self.debug_automation_var.get()
-        logging.getLogger().setLevel(
-            logging.DEBUG if debug_enabled else logging.INFO
-        )
         dialog = tk.Toplevel(self)
         dialog.title("Automatisation Canalyse")
         dialog.resizable(True, True)
