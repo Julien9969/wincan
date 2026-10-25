@@ -94,7 +94,7 @@ DIALOG_SECTIONS = [
         ("profondeur_arrivee", "Profondeur radier arrivée (m) :", "text"),
         ("dimension_regard", "Dimension du regard :", "text"),
         ("profondeur_ouvrage", "Profondeur de l'ouvrage (m) :", "text"),
-        ("profondeur_radier", "Profondeur du radier (m) :", "text"),
+        # ("profondeur_radier", "Profondeur du radier (m) :", "text"),
         ("hauteur_total", "Hauteur totale :", "text"),
     ]),
     ("Adresse / Situation", [
@@ -270,7 +270,7 @@ class TronconDialog(tk.Toplevel):
 
 
 class App(tk.Tk):
-    BASE_SIZE = (900, 720)
+    BASE_SIZE = (800, 640)
     SCALE_INIT = 1.0
     SCALE_STEP = 0.1
     SCALE_MIN = 0.8

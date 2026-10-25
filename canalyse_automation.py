@@ -87,7 +87,7 @@ def apply_troncons(
 
     def log(level: int, message: str) -> None:
         LOGGER.log(level, message)
-        if log_callback is not None and (debug or level != logging.DEBUG):
+        if log_callback is not None:
             log_callback(logging.getLevelName(level), message)
 
     def progress(index: int, message: str) -> None:
