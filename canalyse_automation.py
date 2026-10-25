@@ -81,8 +81,11 @@ def apply_troncons(
         # Canalyse names rows from 1, while the Python list is zero-based.
         select_troncon(window, current, index)
         log("debug", f"Tronçon sélectionné : {troncon.get('nom', index + 1)}")
+        log("debug", "Ouverture de la fenêtre des caractéristiques")
         click_modification_parametres(window)
+        log("debug", "Bouton des caractéristiques activé; recherche de la fenêtre")
         dialog = get_caracteristique_window(app)
+        log("debug", "Fenêtre des caractéristiques trouvée")
 
         identification = get_identification_controls(dialog)
         identification.operator_name.set_edit_text(operator_name)

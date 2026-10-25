@@ -3,6 +3,7 @@ import logging
 
 from pywinauto import Application, Desktop, WindowSpecification
 from pywinauto.timings import Timings
+from pywinauto.timings import TimeoutError as PyWinAutoTimeoutError
 
 APP_PATH = r"C:\Program Files (x86)\Canalyse 2\Canalyse2.exe"
 MAIN_WINDOW_NAME = r".*Canalyse.*"
@@ -19,14 +20,18 @@ def connect_to_canalyse():
 
 
 def get_window(app, window_title_re) -> WindowSpecification:
+    LOGGER.info("Waiting for window matching title=%r", window_title_re)
     window = app.window(title_re=window_title_re)
-
-    LOGGER.info(
-        "Window: title=%r, handle=%s, visible=%s",
-        window.window_text(),
-        window.handle,
-        window.is_visible(),
-    )
+    try:
+        window.wait("exists", timeout=10)
+    except PyWinAutoTimeoutError:
+        LOGGER.exception(
+            "Window did not become available: title=%r; visible windows=%s",
+            window_title_re,
+            [candidate.window_text() for candidate in app.windows()],
+        )
+        raise
+    LOGGER.info("Window became available: title=%r", window_title_re)
     return window
 
 def get_main_window(app) -> WindowSpecification:
