@@ -62,8 +62,12 @@ def _set_node_values(
                 hauteur_total,
             ),
         )
+
+    node.combos[0].set_focus()
+    node.combos[0].set_edit_text(dimension_regard)
     node.dim_regard.set_focus()
     node.dim_regard.set_edit_text(dimension_regard)
+    
     node.profondeur_ouvrage.set_focus()
     node.profondeur_ouvrage.set_edit_text(profondeur_ouvrage)
     node.profondeur_radier.set_focus()
@@ -98,11 +102,17 @@ def apply_troncons(
             progress_callback(index, len(troncons), message)
 
     log(logging.INFO, f"Démarrage de l'automatisation ({len(troncons)} tronçon(s))")
+    log(logging.INFO, "Connexion à Canalyse...")
     app = connect_to_canalyse()
+    log(logging.INFO, "Connexion à Canalyse établie")
+    log(logging.INFO, "Recherche de la fenêtre principale...")
     window = get_main_window(app)
+    log(logging.INFO, "Fenêtre principale trouvée")
     window.set_focus()
 
+    log(logging.INFO, "Recherche des tronçons...")
     troncon_count = len(get_list_troncons(window))
+    log(logging.INFO, f"Tronçons trouvés : {troncon_count}")
 
     log(logging.DEBUG, f"Canalyse expose {troncon_count} tronçon(s)")
     if troncon_count < len(troncons):
