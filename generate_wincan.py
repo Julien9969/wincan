@@ -343,6 +343,50 @@ def parse_source(xml_path):
     return project, regards, troncons
 
 
+def find_regard_conflicts(troncons):
+    """Return conflicting shared-regard values found across Tronçons.
+
+    Regard dimensions and vertical measurements are shared by every
+    Tronçon referencing the same regard. Radier depth is intentionally
+    excluded because it belongs to the individual Tronçon.
+    """
+    shared_fields = (
+        ("dimension_regard", "Dimension du regard"),
+        ("profondeur_ouvrage", "Profondeur de l'ouvrage"),
+        ("hauteur_total", "Hauteur totale"),
+    )
+    known_values = {}
+    conflicts = []
+
+    for troncon in troncons:
+        troncon_name = troncon.get("nom", "") or "<sans nom>"
+        for side in ("depart", "arrive"):
+            regard = troncon.get("arrivee" if side == "arrive" else side, "")
+            if not regard:
+                continue
+            for field, label in shared_fields:
+                key = (regard, field)
+                value = troncon.get(f"{field}_{side}", "")
+                previous = known_values.get(key)
+                if previous is None:
+                    known_values[key] = (value, troncon_name)
+                    continue
+                previous_value, previous_troncon = previous
+                if value != previous_value:
+                    conflicts.append(
+                        {
+                            "regard": regard,
+                            "field": label,
+                            "first_troncon": previous_troncon,
+                            "first_value": previous_value,
+                            "current_troncon": troncon_name,
+                            "current_value": value,
+                        }
+                    )
+
+    return conflicts
+
+
 def build_file(project, regards, troncons):
     out = [
         "#A1=ISO-8859-1:1998",

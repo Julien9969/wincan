@@ -547,6 +547,23 @@ class App(tk.Tk):
         self._prune_unused_regards()
         self._refresh_troncon_tree()
 
+        conflicts = core.find_regard_conflicts(self.troncons)
+        if conflicts:
+            details = "\n".join(
+                (
+                    f"- Regard {conflict['regard']} — {conflict['field']} : "
+                    f"{conflict['first_troncon']} = {conflict['first_value']!r}, "
+                    f"{conflict['current_troncon']} = {conflict['current_value']!r}"
+                )
+                for conflict in conflicts
+            )
+            messagebox.showwarning(
+                "Valeurs de regard redéfinies",
+                "Certains regards utilisés par plusieurs tronçons ont des "
+                "valeurs différentes :\n\n" + details,
+                parent=self,
+            )
+
     def generate_txt(self):
         if not self.troncons:
             messagebox.showinfo("Aucun tronçon", "Ajoutez au moins un tronçon avant de générer le fichier.")

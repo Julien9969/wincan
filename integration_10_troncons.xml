@@ -34,18 +34,20 @@
              etat_reseau="A" statut_reseau="B" forme="C" materiau="AB"
              longueur="55.75" nom="Tronçon n° 3" curage="1"/>
 
-    <!-- Empty hauteur_total values exercise the fallback from ouvrage. -->
+    <!-- R05 is an arrival here and a departure below: shared values match,
+         while profondeur_radier is intentionally different per Tronçon. -->
     <Troncon depart="R04" arrivee="R05" sens_ecoulement="B"
              hauteur_diametre="250"
              profondeur_radier_depart="1.80" profondeur_radier_arrive="1.95"
-             dimension_regard_depart="500" dimension_regard_arrive="500"
-             profondeur_ouvrage_depart="2.90" profondeur_ouvrage_arrive="3.10"
-             hauteur_total_depart="" hauteur_total_arrive=""
+             dimension_regard_depart="500" dimension_regard_arrive="600"
+             profondeur_ouvrage_depart="2.90" profondeur_ouvrage_arrive=""
+             hauteur_total_depart="" hauteur_total_arrive="3.50"
              emplacement="D" usage_reseau="D" type_ecoulement="A"
              etat_reseau="B" statut_reseau="C" forme="D" materiau="AE"
              longueur="60.5" nom="Tronçon n° 4" curage="0"/>
 
-    <!-- Empty profondeur_ouvrage values exercise the fallback from hauteur. -->
+    <!-- R05 is reused as departure with the same shared values and a new
+         radier depth. Empty profondeur_ouvrage exercises the fallback. -->
     <Troncon depart="R05" arrivee="R06" sens_ecoulement="A"
              hauteur_diametre="500"
              profondeur_radier_depart="2.00" profondeur_radier_arrive="2.15"
