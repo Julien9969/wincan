@@ -10,7 +10,7 @@ Source XML shape:
 
 <Project commune="..." adresse="..." operateur="Kais Mougeot" date="YYYY-MM-DD">
   <Troncons>
-    <Troncon depart="G1" arrivee="RB1" direction="A"
+    <Troncon depart="G1" arrivee="RB1" sens_ecoulement="A"
              hauteur_diametre="200" profondeur_depart="" profondeur_arrivee=""
              emplacement="H" usage_reseau="A" type_ecoulement="A"
              etat_reseau="A" statut_reseau="A" forme="A" materiau="A"
@@ -174,7 +174,7 @@ DEFAULT_TRONCON = {
     "hauteur_diametre": "",
     "materiau": "AX",
     "longueur": "",
-    "direction": "A",
+    "sens_ecoulement": "A",
     "profondeur_depart": "",
     "profondeur_arrivee": "",
     "dimension_regard": "",
@@ -206,7 +206,7 @@ def csv_line(fields):
 # Block builders
 # ---------------------------------------------------------------------------
 
-def build_b01(nom, depart, arrivee, adresse, commune, emplacement, direction, curage):
+def build_b01(nom, depart, arrivee, adresse, commune, emplacement, sens_ecoulement, curage):
     lines = ["#B01=AAA,AAB,AAD,AAF,AAJ,AAK,AAL,AAM,AAN,AAO,AAP,AAQ"]
     lines.append(csv_line([
         q(nom),                    # AAA - section name/reference
@@ -214,7 +214,7 @@ def build_b01(nom, depart, arrivee, adresse, commune, emplacement, direction, cu
         q(depart),                 # AAD - start node (repeated, as in source files)
         q(arrivee),                # AAF - end node
         q(adresse),                # AAJ - street / location (inherited from project)
-        raw(direction),            # AAK - Sens d'écoulement (A = base départ->arrivée, B = inverse)
+        raw(sens_ecoulement),            # AAK - Sens d'écoulement (A = base départ->arrivée, B = inverse)
         raw(emplacement),          # AAL - Emplacement / Conditions
         q(""),                     # AAM - unused
         q(commune),                # AAN - Commune (inherited from project)
@@ -307,7 +307,7 @@ def parse_source(xml_path):
                 "forme": t.get("forme", DEFAULT_TRONCON["forme"]),
                 "hauteur_diametre": t.get("hauteur_diametre", ""),
                 "materiau": t.get("materiau", DEFAULT_TRONCON["materiau"]),
-                "direction": t.get("direction", DEFAULT_TRONCON["direction"]),
+                "sens_ecoulement": t.get("sens_ecoulement", DEFAULT_TRONCON["sens_ecoulement"]),
                 "profondeur_depart": t.get("profondeur_depart", ""),
                 "profondeur_arrivee": t.get("profondeur_arrivee", ""),
                 "dimension_regard": t.get("dimension_regard", ""),
@@ -346,7 +346,7 @@ def build_file(project, regards, troncons):
         out += build_b01(
             t["nom"], t["depart"], t["arrivee"],
             project.get("adresse", ""), project.get("commune", ""),
-            t["emplacement"], t["direction"], t["curage"],
+            t["emplacement"], t["sens_ecoulement"], t["curage"],
         )
         out += build_b02(
             project.get("date", ""), project.get("operateur", "Kais Mougeot"),

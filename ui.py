@@ -292,7 +292,6 @@ class App(tk.Tk):
         self.project["operateur"] = DEFAULT_OPERATEUR
         self.regards = []   # list[str], unique Regard names -- derived from Tronçons, never created manually
         self.troncons = []  # list[dict] (core.DEFAULT_TRONCON shape + nom/depart/arrivee)
-        self.debug_automation_var = tk.BooleanVar(value=False)
 
         self._build_ui()
         self._apply_scale()
@@ -395,11 +394,6 @@ class App(tk.Tk):
             command=self.apply_to_canalyse,
         )
         self.automation_button.pack(side="left", padx=4)
-        ttk.Checkbutton(
-            bottom,
-            text="Logs DEBUG",
-            variable=self.debug_automation_var,
-        ).pack(side="left", padx=4)
         ttk.Button(bottom, text="Générer fichier .txt...", command=self.generate_txt).pack(side="right", padx=4)
 
         scale_frame = ttk.Frame(bottom)
@@ -603,6 +597,18 @@ class App(tk.Tk):
         close_button.pack(side="right")
 
         events = queue.Queue()
+        previous_log_level = logging.getLogger().level
+
+        class DialogLogHandler(logging.Handler):
+            def emit(self, record):
+                events.put(("log", record.levelname, self.format(record)))
+
+        dialog_log_handler = DialogLogHandler()
+        dialog_log_handler.setFormatter(
+            logging.Formatter("%(name)s: %(message)s")
+        )
+        logging.getLogger().addHandler(dialog_log_handler)
+        logging.getLogger().setLevel(logging.DEBUG)
         self.automation_button.configure(state="disabled")
 
         def append_log(level, message):
@@ -617,7 +623,6 @@ class App(tk.Tk):
                     self.troncons,
                     self.project.get("operateur", DEFAULT_OPERATEUR),
                     debug=debug_enabled,
-                    log_callback=append_log,
                     progress_callback=update_progress,
                 )
             except Exception as exc:
@@ -641,6 +646,8 @@ class App(tk.Tk):
                         progress.configure(maximum=total, value=current)
                         status_var.set(message)
                     elif event[0] == "error":
+                        logging.getLogger().removeHandler(dialog_log_handler)
+                        logging.getLogger().setLevel(previous_log_level)
                         self.automation_button.configure(state="normal")
                         close_button.configure(state="normal")
                         status_var.set("Échec de l'automatisation")
@@ -650,6 +657,8 @@ class App(tk.Tk):
                             parent=dialog,
                         )
                     elif event[0] == "done":
+                        logging.getLogger().removeHandler(dialog_log_handler)
+                        logging.getLogger().setLevel(previous_log_level)
                         self.automation_button.configure(state="normal")
                         close_button.configure(state="normal")
                         status_var.set("Automatisation terminée")
