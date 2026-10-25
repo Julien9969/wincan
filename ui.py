@@ -601,18 +601,6 @@ class App(tk.Tk):
         close_button.pack(side="right")
 
         events = queue.Queue()
-        previous_log_level = logging.getLogger().level
-
-        class DialogLogHandler(logging.Handler):
-            def emit(self, record):
-                events.put(("log", record.levelname, self.format(record)))
-
-        dialog_log_handler = DialogLogHandler()
-        dialog_log_handler.setFormatter(
-            logging.Formatter("%(name)s: %(message)s")
-        )
-        logging.getLogger().addHandler(dialog_log_handler)
-        logging.getLogger().setLevel(logging.DEBUG)
         self.automation_button.configure(state="disabled")
 
         def append_log(level, message):
@@ -651,8 +639,6 @@ class App(tk.Tk):
                         progress.configure(maximum=total, value=current)
                         status_var.set(message)
                     elif event[0] == "error":
-                        logging.getLogger().removeHandler(dialog_log_handler)
-                        logging.getLogger().setLevel(previous_log_level)
                         self.automation_button.configure(state="normal")
                         close_button.configure(state="normal")
                         status_var.set("Échec de l'automatisation")
@@ -662,8 +648,6 @@ class App(tk.Tk):
                             parent=dialog,
                         )
                     elif event[0] == "done":
-                        logging.getLogger().removeHandler(dialog_log_handler)
-                        logging.getLogger().setLevel(previous_log_level)
                         self.automation_button.configure(state="normal")
                         close_button.configure(state="normal")
                         status_var.set("Automatisation terminée")
