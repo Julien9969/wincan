@@ -307,7 +307,10 @@ def parse_source(xml_path):
                 "forme": t.get("forme", DEFAULT_TRONCON["forme"]),
                 "hauteur_diametre": t.get("hauteur_diametre", ""),
                 "materiau": t.get("materiau", DEFAULT_TRONCON["materiau"]),
-                "sens_ecoulement": t.get("sens_ecoulement", DEFAULT_TRONCON["sens_ecoulement"]),
+                "sens_ecoulement": t.get(
+                    "sens_ecoulement",
+                    t.get("direction", DEFAULT_TRONCON["sens_ecoulement"]),
+                ),
                 "profondeur_depart": t.get("profondeur_depart", ""),
                 "profondeur_arrivee": t.get("profondeur_arrivee", ""),
                 "dimension_regard": t.get("dimension_regard", ""),

@@ -137,7 +137,11 @@ def apply_troncons(
         _set_node_values(arrive, troncon, "profondeur_arrivee", log_callback)
         log(logging.DEBUG, "Valeurs renseignées sur le regard d'arrivée")
 
-        if troncon.get("sens_ecoulement", "A") == "B":
+        flow_direction = troncon.get(
+            "sens_ecoulement",
+            troncon.get("direction", "A"),
+        )
+        if flow_direction == "B":
             get_sens_ecoulement(regards).pane.click_input()
             log(logging.DEBUG, "Sens d'écoulement inversé (sens_ecoulement B)")
         else:

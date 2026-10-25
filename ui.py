@@ -81,7 +81,7 @@ CODE_FIELD_TABLES = {
 # Dialog layout: (category label or None for the top / uncategorised group,
 # then [(key, label, kind), ...]).  kind is one of:
 #   "regards"   -> combobox over existing Regards (départ/arrivée)
-#   "direction" -> readonly combobox départ->arrivée / arrivée->départ
+#   "flow_direction" -> readonly combobox départ->arrivée / arrivée->départ
 #   "code"      -> dropdown fed from CODE_FIELD_TABLES[key]
 #   "bool"      -> checkbutton
 #   "text"      -> plain text entry
@@ -89,7 +89,7 @@ DIALOG_SECTIONS = [
     (None, [
         ("depart", "Nœud de départ *:", "regards"),
         ("arrivee", "Nœud d'arrivée *:", "regards"),
-        ("direction", "Sens d'écoulement :", "direction"),
+        ("sens_ecoulement", "Sens d'écoulement :", "direction"),
         ("profondeur_depart", "Profondeur radier départ (m) :", "text"),
         ("profondeur_arrivee", "Profondeur radier arrivée (m) :", "text"),
         ("dimension_regard", "Dimension du regard :", "text"),
@@ -120,7 +120,7 @@ DIALOG_SECTIONS = [
 # Fixed attribute order for the <Troncon> XML elements. Regards are not
 # stored in the XML -- they are derived from the Tronçons' depart/arrivee.
 TRONCON_XML_ATTR_ORDER = (
-    "depart", "arrivee", "direction", "hauteur_diametre",
+    "depart", "arrivee", "sens_ecoulement", "hauteur_diametre",
     "profondeur_depart", "profondeur_arrivee", "emplacement",
     "usage_reseau", "type_ecoulement", "etat_reseau", "statut_reseau",
     "forme", "materiau", "longueur", "dimension_regard",
@@ -236,7 +236,9 @@ class TronconDialog(tk.Toplevel):
             return
         if self.direction_var.get() in options:
             return
-        self.direction_var.set(options[1] if initial.get("direction") == "B" else options[0])
+        self.direction_var.set(
+            options[1] if initial.get("sens_ecoulement") == "B" else options[0]
+        )
 
     def _ok(self):
         depart = self.depart_var.get().strip()
@@ -249,10 +251,12 @@ class TronconDialog(tk.Toplevel):
             return
 
         result = {
-            "direction": "B" if self.direction_var.get() == f"{arrivee} -> {depart}" else "A",
+            "sens_ecoulement": (
+                "B" if self.direction_var.get() == f"{arrivee} -> {depart}" else "A"
+            ),
         }
         for key, (kind, var, *rest) in self._field_vars.items():
-            if key == "direction":
+            if key == "sens_ecoulement":
                 continue
             if kind == "bool":
                 result[key] = var.get()
@@ -430,7 +434,11 @@ class App(tk.Tk):
     def _refresh_troncon_tree(self, select_iid=None):
         self.troncon_tree.delete(*self.troncon_tree.get_children())
         for i, t in enumerate(self.troncons):
-            sens = f"{t['depart']} -> {t['arrivee']}" if t.get("direction") != "B" else f"{t['arrivee']} -> {t['depart']}"
+            sens = (
+                f"{t['depart']} -> {t['arrivee']}"
+                if t.get("sens_ecoulement") != "B"
+                else f"{t['arrivee']} -> {t['depart']}"
+            )
             values = (t["nom"], t["depart"], t["arrivee"], sens, t["forme"], t["materiau"])
             self.troncon_tree.insert("", "end", iid=str(i), values=values)
         if select_iid is not None:
